@@ -1,0 +1,2 @@
+call themis#option('runtimepath', expand('~/Repository/aref-web.vim'))
+"call themis#option('runtimepath', expand('~/.vim/bundle/repl.vim'))

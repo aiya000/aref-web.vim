@@ -14,7 +14,7 @@ function! s:is_supported_source(source_name) " {{{
 	return s:load_data_list().has(l:supported_sources, a:source_name)
 endfunction " }}}
 
-" warn_supporting_error supporting error
+" Warn the supporting error
 function! s:warn_supporting_error(source_name) " {{{
 	echohl Error
 	echo a:source_name . ' is not supported.'
@@ -22,17 +22,58 @@ function! s:warn_supporting_error(source_name) " {{{
 	echohl None
 endfunction " }}}
 
-function! s:load_page_async(url)
-	
-endfunction
+"Example: echo s:get_target_url('stackage', ['Int', '->', 'Int'])
+"  ==> 'https://www.stackage.org/(lts-5.15)/hoogle?q=Int+->+Int'
+function! s:get_target_url(source_name, params) " {{{
+	"Example: Aref stackage Int -> Int  ==>  l:request_param == 'Int+->+Int'
+	let l:request_param = join(a:params, '+')
+	return printf(g:aref_web_source[a:source_name].url, l:request_param)
+endfunction " }}}
+
+"Example: echo s:get_buffer_name('stackage', ['Int', '->', 'Int'])
+"  ==> '[aref-web: stackage Int -> Int]'
+function! s:get_buffer_name(source_name, params) " {{{
+	let l:base = '[aref-web: %s]'
+	let l:body = a:source_name . ' ' . join(a:params)
+	return printf(l:base, l:body)
+endfunction " }}}
+
+" Load webpage detail of a:request_url async.
+" and Open its buffer async.
+function! s:open_webpage_buffer_async(buffer_name, request_url) " {{{
+	let s:buffer_name   = a:buffer_name  " Closing
+	let s:stdout_result = ''
+	let s:tempname = tempname() . '.html'
+
+	function! s:aggregate_stdout(_, stdout)
+		let s:stdout_result .= a:stdout
+	endfunction
+	function! ArefWebOpenBuffer(_, __)
+		execute 'new' s:buffer_name
+		setl noswapfile buftype=nofile filetype=aref_web
+		1put!=system('w3m -dump ' . s:tempname)
+		execute 'normal! G"_ddgg'
+		unlet s:buffer_name s:stdout_result s:tempname
+		setl nomodifiable
+	endfunction
+
+	let l:command  = printf('curl %s -o %s', a:request_url, s:tempname)
+	call job_start(l:command, {
+	\	'out_cb'  : function('s:aggregate_stdout'),
+	\	'exit_cb' : 'ArefWebOpenBuffer'
+	\})
+endfunction " }}}
 
 "-------------------"
 
+" Open webpage buffer async
 function! aref_web#open(...)
 	let l:source_name = a:1
 	if !s:is_supported_source(l:source_name)
 		call s:warn_supporting_error(l:source_name)
 		return
 	endif
-	throw 'todo: implementation'
+	let l:request_url = s:get_target_url(l:source_name, a:000[1:])
+	let l:buffer_name = s:get_buffer_name(l:source_name, a:000[1:])
+	call s:open_webpage_buffer_async(l:buffer_name, l:request_url)
 endfunction

@@ -1,6 +1,7 @@
 let s:suite       = themis#suite('repl_vim')
 let s:assert      = themis#helper('assert')
 let s:ScriptLocal = vital#aref_web#import('Vim.ScriptLocal')
+let s:funcs       = s:ScriptLocal.sfuncs('autoload/aref_web.vim')
 
 "-------------------"
 
@@ -13,9 +14,22 @@ function! s:suite.is_supported_source_test()
 	\		'url' : 'http://example.com/%s'
 	\	}
 	\}
-	let s:is_supported_source = s:ScriptLocal.sfuncs('autoload/aref_web.vim').is_supported_source
+	let s:is_supported_source = s:funcs.is_supported_source
 	let l:act_valid   = s:is_supported_source(l:VALID_SOURCE_NAME)
 	let l:act_invalid = s:is_supported_source(l:INVALID_SOURCE_NAME)
 	call s:assert.true(l:act_valid)
 	call s:assert.false(l:act_invalid)
+endfunction
+
+function! s:suite.get_target_url()
+	" Used by is_supported_source func
+	let g:aref_web_source = {
+	\	'foo' : {
+	\		'url' : 'http://example.com/%s'
+	\	}
+	\}
+	let s:get_target_url = s:funcs.get_target_url
+	let l:expedted = printf(g:aref_web_source.foo.url, 'hoge+to+ahoge')
+	let l:act      = s:get_target_url('foo', ['hoge', 'to', 'ahoge'])
+	call s:assert.equals(l:act, l:expedted)
 endfunction

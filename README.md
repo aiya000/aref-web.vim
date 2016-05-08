@@ -6,7 +6,7 @@ aref-web.vim can open web dictionaries on the vim async.
 
 ## Example
 
-1. Add this config to your .vimrc
+- 1. Add this config to your .vimrc
 
 ```vim
 let g:aref_web_source = {
@@ -16,13 +16,22 @@ let g:aref_web_source = {
 \}
 ```
 
-2. Execute command
+- 2. Execute command
 
 ```vim
 :Aref stackage Int -> Int
 ```
 
-3. https://www.stackage.org/lts-5.15/hoogle?q=Int+->+Int will be open in buffer async
+- 3. https://www.stackage.org/lts-5.15/hoogle?q=Int+->+Int will be open in buffer async
+
+## Requirements
+
+* Vim options
+  - +job
+
+* Commands
+  - curl
+  - w3m
 
 
 ## Thanks

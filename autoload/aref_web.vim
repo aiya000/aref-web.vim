@@ -8,17 +8,22 @@ function! s:load_data_list() " {{{
 endfunction " }}}
 
 " If keys(g:aref_web_source) contains a:source_name, Return true.
-" otherwise Return false
+" otherwise Return false.
 function! s:is_supported_source(source_name) " {{{
 	let l:supported_sources = keys(g:aref_web_source)
 	return s:load_data_list().has(l:supported_sources, a:source_name)
 endfunction " }}}
 
-" Warn the supporting error
-function! s:warn_supporting_error(source_name) " {{{
+" If you have cui web browser, Return true.
+" otherwise Return false.
+function! s:can_use_dump_cmd() " {{{
+	return !empty(g:aref_web_dump_cmd)
+endfunction " }}}
+
+" Do echomsg the error
+function! s:echo_error(msg) " {{{
 	echohl Error
-	echo a:source_name . ' is not supported.'
-	echo 'Please verify g:loaded_aref_web'
+	echomsg a:msg
 	echohl None
 endfunction " }}}
 
@@ -41,22 +46,30 @@ endfunction " }}}
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
 function! s:open_webpage_buffer_async(buffer_name, request_url) " {{{
+	" This variables will be unlet by ArefWebOpenBuffer()
 	let s:buffer_name   = a:buffer_name  " Closing
 	let s:stdout_result = ''
-	let s:tempname = tempname() . '.html'
+	let s:tempname      = tempname() . '.html'
 
+	" "out_cb" function for "curl {url} -o {s:tempname}"
 	function! s:aggregate_stdout(_, stdout)
 		let s:stdout_result .= a:stdout
 	endfunction
+
+	" "exit_cb" function for "curl {url} -o {s:tempname}"
 	function! ArefWebOpenBuffer(_, __)
 		execute 'new' s:buffer_name
 		setl noswapfile buftype=nofile filetype=aref_web
-		1put!=system('w3m -dump ' . s:tempname)
+		" Show html page detail
+		let l:dump_cmd = printf(g:aref_web_dump_cmd, s:tempname)
+		1put!=system(l:dump_cmd)
 		execute 'normal! G"_ddgg'
 		unlet s:buffer_name s:stdout_result s:tempname
 		setl nomodifiable
 	endfunction
 
+	" Why "exit_cb" don't use funcref ?
+	" It's derived vim spec
 	let l:command  = printf('curl %s -o %s', a:request_url, s:tempname)
 	call job_start(l:command, {
 	\	'out_cb'  : function('s:aggregate_stdout'),
@@ -70,7 +83,13 @@ endfunction " }}}
 function! aref_web#open(...)
 	let l:source_name = a:1
 	if !s:is_supported_source(l:source_name)
-		call s:warn_supporting_error(l:source_name)
+		call s:echo_error(l:source_name . ' is not supported.')
+		call s:echo_error('Please verify g:loaded_aref_web')
+		return
+	endif
+	if !s:can_use_dump_cmd()
+		call s:echo_error('Sorry. aref_web.vim needs w3m, lynx, elinks or links browser.')
+		call s:echo_error('Please add it to your $PATH')
 		return
 	endif
 	let l:request_url = s:get_target_url(l:source_name, a:000[1:])

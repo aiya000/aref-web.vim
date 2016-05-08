@@ -77,6 +77,8 @@ https://github.com/user/aref-web.vim.vim
 変数						*aref_web-variables*
 
 g:aref_web_source				*g:aref_web_source*
+	This type is dictionary .
+
 	既定値: {}
 	設定例:
 	let g:aref_web_source = {
@@ -101,6 +103,21 @@ g:aref_web_source				*g:aref_web_source*
     https://www.stackage.org/lts-5.15/hoogle?q=Int+->+Int
 (stackage以降の引数が+で結合され、%sに挿入されています)
 
+
+g:aref_web_dump_cmd				*g:aref_web_dump_cmd*
+	This type is string .
+
+	規定値: $PATHに入っている以下のCUI browserのいずれか
+	(上に記述されたものの方が優先度が高い)
+		- w3m
+		- elinks
+		- links
+	設定例: 'w3m -dump %s'
+
+　|g:aref_web_source|の内容を取得する際に使用されます。
+簡易例: $ curl http://ejje.weblio.jp/content/foo_word -o tempname.html
+        $ w3m -dump tempname.html
+        ==> to vim buffer.
 
 ------------------------------------------------------------------------------
 コマンド					*aref_web-commands*

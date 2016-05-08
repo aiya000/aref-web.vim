@@ -31,9 +31,24 @@ let g:aref_web_source = {
 
 * Commands
   - curl
-  - w3m
+  - cui browse
+    - w3m or
+    - elinks or
+    - links
+
+
+## TODO
+
+- Use existing aref_web type buffer
+- Redo search cursor word on enter key pressed
+
+
+## I Wish !!
+
+- Pull request for English document
+- (and other PRs)
 
 
 ## Thanks
 
-This plugin respected [ref.vim](https://github.com/thinca/vim-ref/).
+This plugin respected [ref.vim](https://github.com/thinca/vim-ref/)'s webdict.

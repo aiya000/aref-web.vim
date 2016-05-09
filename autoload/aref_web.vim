@@ -45,11 +45,17 @@ endfunction " }}}
 
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
-function! s:open_webpage_buffer_async(buffer_name, request_url) " {{{
-	" This variables will be unlet by ArefWebOpenBuffer()
-	let s:buffer_name   = a:buffer_name  " Closing
+function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords) " {{{
+	"-- This s: scope variables will be unlet by ArefWebOpenBuffer()
+	" Binding to s: scope
+	let s:buffer_name = a:buffer_name
+	"Example: ['a', '->', 'b'] ==> 'a -> b'
+	let s:search_keywords = join(a:search_keywords)
+	" job_start()'s result
 	let s:stdout_result = ''
-	let s:tempname      = tempname() . '.html'
+	" Be referenced by job_start() and ArefWebOpenBuffer()
+	let s:tempname = tempname() . '.html'
+	"--
 
 	" "out_cb" function for "curl {url} -o {s:tempname}"
 	function! s:aggregate_stdout(_, stdout)
@@ -60,11 +66,17 @@ function! s:open_webpage_buffer_async(buffer_name, request_url) " {{{
 	function! ArefWebOpenBuffer(_, __)
 		execute 'new' s:buffer_name
 		setl noswapfile buftype=nofile filetype=aref_web
+		"----------"
 		" Show html page detail
 		let l:dump_cmd = printf(g:aref_web_dump_cmd, s:tempname)
 		1put!=system(l:dump_cmd)
 		execute 'normal! G"_ddgg'
-		unlet s:buffer_name s:stdout_result s:tempname
+
+		" Highlight search keyword
+		execute printf('syntax match arefWebKeyword "%s"', join(s:search_keywords))
+		highlight default link arefWebKeyword Special
+		"----------"
+		unlet s:buffer_name s:search_keywords s:stdout_result s:tempname
 		setl nomodifiable
 	endfunction
 
@@ -94,5 +106,5 @@ function! aref_web#open(...)
 	endif
 	let l:request_url = s:get_target_url(l:source_name, a:000[1:])
 	let l:buffer_name = s:get_buffer_name(l:source_name, a:000[1:])
-	call s:open_webpage_buffer_async(l:buffer_name, l:request_url)
+	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:])
 endfunction

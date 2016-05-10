@@ -30,3 +30,5 @@ let g:aref_web_dump_cmd = get(g:, 'aref_web_dump_cmd',
 
 " Open webpage buffer async
 command! -bar -nargs=+ Aref call aref_web#open(<f-args>)
+
+"nnoremap <silent> <Plug>(aref_web_open_cur_source_cword) :<C-u>call

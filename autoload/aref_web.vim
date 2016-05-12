@@ -78,6 +78,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 		"----------"
 		unlet s:buffer_name s:search_keywords s:stdout_result s:tempname
 		setl nomodifiable
+		wincmd p
 	endfunction
 
 	" Why "exit_cb" don't use funcref ?

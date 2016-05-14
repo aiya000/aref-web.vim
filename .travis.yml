@@ -1,0 +1,16 @@
+language: viml
+
+install:
+    - mkdir -p ~/.vim/bundle
+    - git clone https://github.com/thinca/vim-themis ~/.vim/bundle/vim-themis
+    - git clone https://github.com/tyru/open-browser.vim ~/.vim/bundle/open-browser.vim
+    - git clone https://github.com/aiya000/aref-web.vim ~/.vim/bundle/aref-web.vim
+
+before_script:
+    - vim --version
+
+script:
+    - ~/.vim/bundle/vim-themis/bin/themis ~/.vim/bundle/aref-web.vim/test --reporter spec
+
+branches:
+    - master

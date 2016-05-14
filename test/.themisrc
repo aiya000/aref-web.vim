@@ -1,2 +1,20 @@
 call themis#option('runtimepath', expand('~/Repository/aref-web.vim'))
-"call themis#option('runtimepath', expand('~/.vim/bundle/repl.vim'))
+
+"-------------------"
+
+" Be careful for path
+let s:OPEN_BROWSER_PATH = expand('~/.vim/bundle/open-browser.vim') | lockvar s:OPEN_BROWSER_PATH
+
+function! LoadOpenBrowserToRTP() abort
+	if !isdirectory(s:OPEN_BROWSER_PATH)
+		throw 'AHOGEHOGE: failure loading open-browser.vim'
+	endif
+	execute 'set rtp+=' . s:OPEN_BROWSER_PATH
+endfunction
+
+function! UnloadOpenBrowserToRTP() abort
+	if !isdirectory(s:OPEN_BROWSER_PATH)
+		throw 'AHOGEHOGE: failure unloading open-browser.vim'
+	endif
+	execute 'set rtp-=' . s:OPEN_BROWSER_PATH
+endfunction

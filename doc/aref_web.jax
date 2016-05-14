@@ -29,6 +29,7 @@ License : MIT license  {{{
 インターフェイス		|aref_web-interface|
   変数				  |aref_web-variables|
   コマンド			  |aref_web-commands|
+  キーマッピング		  |aref_web-key-mappings|
   関数				  |aref_web-functions|
 TODO				|aref_web-todo|
 更新履歴			|aref_web-changelog|
@@ -130,6 +131,36 @@ g:aref_web_dump_cmd				*g:aref_web_dump_cmd*
 詳しくは |aref-web.vim-variables| を参照。
 
 
+:ArefOpenBrowser 				*:ArefOpenBrowser*
+　現在のバッファの'filetype'が aref_web である場合に、
+そこで開かれているWebページを規定のブラウザで開きます。
+　ここでは|open-broser.vim|が使用され、「規定のブラウザ」は
+|open-broser.vim|によって選択されます。
+
+　このコマンドは|open-broser.vim|がVimにロードされていない場合は
+機能しません。
+
+
+------------------------------------------------------------------------------
+キーマッピング					*aref_web-key-mappings*
+
+				*<Plug>(aref_web_open_browser_current_url)*
+<Plug>(aref_web_open_browser_current_url)
+	有効モード: normal mode
+
+　:ArefOpenBrowserのキーマッピング版です。
+詳しくは |ArefOpenBrowser| を参照。
+
+
+						*aref_web-default-key-mappings*
+
+Normal mode default key mappings
+    for filetype=aref_web buffer.
+{lhs}		{rhs}
+--------	------------------------
+O		<Plug>(aref_web_open_browser_current_url)
+
+
 ------------------------------------------------------------------------------
 関数						*aref_web-functions*
 
@@ -138,11 +169,9 @@ aref_web#open({...})				*aref_web#open()*
 |:Aref|の関数版。
 
 
-==============================================================================
-更新履歴					*aref_web-changelog*
+aref_web#open_webpage({...})			*aref_web#open_webpage()*
 
-2016-05-07
-基本機能を実装。
+|:ArefOpenBrowser|の関数版。
 
 
 ==============================================================================

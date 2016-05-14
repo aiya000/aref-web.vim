@@ -9,12 +9,12 @@ endfunction " }}}
 
 " If not exists Vital.Web.HTTP yet, load it.
 " and Return Vital.Web.HTTP instance.
-function! s:load_web_http() abort
+function! s:load_web_http() abort " {{{
 	if !exists('s:HTTP')
 		let s:HTTP = vital#aref_web#import('Web.HTTP')
 	endif
 	return s:HTTP
-endfunction
+endfunction " }}}
 
 " If keys(g:aref_web_source) contains a:source_name, Return true.
 " otherwise Return false.
@@ -29,6 +29,17 @@ function! s:can_use_dump_cmd() abort " {{{
 	return !empty(g:aref_web_dump_cmd)
 endfunction " }}}
 
+" If you have open-browser.vim, Return v:true.
+" otherwise Return v:false.
+function! s:have_openbrowser_vim() abort " {{{
+	try
+		call openbrowser#load()
+		return v:true
+	catch /E117/
+		return v:false
+	endtry
+endfunction " }}}
+
 " Do echomsg the error
 function! s:echo_error(msg) abort " {{{
 	echohl Error
@@ -37,7 +48,7 @@ function! s:echo_error(msg) abort " {{{
 endfunction " }}}
 
 "Example: echo s:get_target_url('stackage', ['Int', '->', 'Int'])
-"  ==> 'https://www.stackage.org/(lts-5.15)/hoogle?q=Int+->+Int'
+"  ==> 'https://www.stackage.org/(lts-5.15 or other version)/hoogle?q=Int%20-%3E%20Int'
 function! s:get_target_url(source_name, params) abort " {{{
 	"Example: Aref stackage Int -> Int  ==>  l:request_param == 'Int+->+Int'
 	let l:request_params = join(a:params, '+')
@@ -53,12 +64,18 @@ function! s:get_buffer_name(source_name, params) abort " {{{
 	return printf(l:base, l:body)
 endfunction " }}}
 
+" Do nmap for filetype=aref_web buffer
+function! s:map_default_keys() abort " {{{
+	nmap <buffer> O <Plug>(aref_web_open_browser_current_url)
+endfunction " }}}
+
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
 function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords) abort " {{{
 	"-- This s: scope variables will be unlet by ArefWebOpenBuffer()
 	" Binding to s: scope
 	let s:buffer_name = a:buffer_name
+	let s:request_url = a:request_url
 	"Example: ['a', '->', 'b'] ==> 'a -> b'
 	let s:search_keywords = join(a:search_keywords)
 	" job_start()'s result
@@ -82,11 +99,17 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 		1put!=system(l:dump_cmd)
 		execute 'normal! G"_ddgg'
 
+		" Save url for open-browser.vim
+		let b:aref_web_curret_url = s:request_url
+
+		" Mapping default keymapping
+		call s:map_default_keys()
+
 		" Highlight searched keyword
 		execute printf('syntax match arefWebKeyword "%s"', s:search_keywords)
 		highlight default link arefWebKeyword Special
 		"----------"
-		unlet s:buffer_name s:search_keywords s:stdout_result s:tempname
+		unlet s:buffer_name s:request_url s:search_keywords s:stdout_result s:tempname
 		setl nomodifiable
 		wincmd p
 	endfunction
@@ -103,7 +126,7 @@ endfunction " }}}
 "-------------------"
 
 " Open webpage buffer async
-function! aref_web#open(...) abort
+function! aref_web#open_webpage(...) abort
 	let l:source_name = a:1
 	if !s:is_supported_source(l:source_name)
 		call s:echo_error(l:source_name . ' is not supported.')
@@ -118,4 +141,19 @@ function! aref_web#open(...) abort
 	let l:request_url = s:get_target_url(l:source_name, a:000[1:])
 	let l:buffer_name = s:get_buffer_name(l:source_name, a:000[1:])
 	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:])
+endfunction
+
+" Open current url by open-browser.vim in filetype=aref_web buffer
+function! aref_web#open_browser() abort
+	if !s:have_openbrowser_vim()
+		call s:echo_error('calling open-browser.vim failed')
+		call s:echo_error('Please install and load open-browser.vim')
+		return
+	endif
+	if &filetype !=# 'aref_web'
+		call s:echo_error('Invalid call situation')
+		call s:echo_error('Please call from filetype=aref_web buffer')
+		return
+	endif
+	call openbrowser#open(b:aref_web_curret_url)
 endfunction

@@ -29,6 +29,11 @@ let g:aref_web_dump_cmd = get(g:, 'aref_web_dump_cmd',
 "\	: executable('lynx')   ? 'lynx -dump -nonumbers %s'
 
 " Open webpage buffer async
-command! -bar -nargs=+ Aref call aref_web#open(<f-args>)
+command! -bar -nargs=+ Aref call aref_web#open_webpage(<f-args>)
 
+" Open browser by open-browser.vim
+command! -bar ArefOpenBrowser call aref_web#open_browser()
+
+" Open browser by open-browser.vim
+nnoremap <silent> <Plug>(aref_web_open_browser_current_url) :<C-u>call aref_web#open_browser()<CR>
 "nnoremap <silent> <Plug>(aref_web_open_cur_source_cword) :<C-u>call

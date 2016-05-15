@@ -3,7 +3,7 @@ call themis#option('runtimepath', expand('~/Repository/aref-web.vim'))
 "-------------------"
 
 " Be careful for path
-let s:OPEN_BROWSER_PATH = expand('~/.vim/bundle/open-browser.vim') | lockvar s:OPEN_BROWSER_PATH
+let s:OPEN_BROWSER_PATH = expand('~/.vim/bundle/repos/github.com/tyru/open-browser.vim') | lockvar s:OPEN_BROWSER_PATH
 
 function! LoadOpenBrowserToRTP() abort
 	if !isdirectory(s:OPEN_BROWSER_PATH)

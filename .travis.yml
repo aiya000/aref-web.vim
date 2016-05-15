@@ -1,16 +1,19 @@
 language: viml
 
 install:
-    - mkdir -p ~/.vim/bundle
-    - git clone https://github.com/thinca/vim-themis ~/.vim/bundle/vim-themis
-    - git clone https://github.com/tyru/open-browser.vim ~/.vim/bundle/open-browser.vim
-    - git clone https://github.com/aiya000/aref-web.vim ~/.vim/bundle/aref-web.vim
+    - mkdir -p ~/.vim/bundle/repos/github.com
+    - mkdir ~/.vim/bundle/repos/github.com/thinca
+    - mkdir ~/.vim/bundle/repos/github.com/tyru
+    - mkdir ~/Repository
+    - git clone https://github.com/thinca/vim-themis ~/.vim/bundle/repos/github.com/thinca/vim-themis
+    - git clone https://github.com/tyru/open-browser.vim ~/.vim/bundle/repos/github.com/tyru/open-browser.vim
+    - git clone https://github.com/aiya000/aref-web.vim ~/Repository/aref-web.vim
 
 before_script:
     - vim --version
 
 script:
-    - ~/.vim/bundle/vim-themis/bin/themis ~/.vim/bundle/aref-web.vim/test --reporter spec
+    - ~/.vim/bundle/repos/github.com/thinca/vim-themis/bin/themis ~/Repository/aref-web.vim/test --reporter spec
 
 branches:
     - master

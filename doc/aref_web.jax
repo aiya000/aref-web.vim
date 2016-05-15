@@ -102,7 +102,8 @@ g:aref_web_source				*g:aref_web_source*
     :Aref stackage Int -> Int
 以下のURLのWebページを取得しに行きます。
     https://www.stackage.org/lts-5.15/hoogle?q=Int+->+Int
-(stackage以降の引数が+で結合され、%sに挿入されています)
+stackage以降の引数が+で結合され、%sに挿入されています。
+(ただし、実際にはparameterはパーセントエンコーディングされます)
 
 
 g:aref_web_dump_cmd				*g:aref_web_dump_cmd*
@@ -154,8 +155,7 @@ g:aref_web_dump_cmd				*g:aref_web_dump_cmd*
 
 						*aref_web-default-key-mappings*
 
-Normal mode default key mappings
-    for filetype=aref_web buffer.
+Normal mode default key mappings for filetype=aref_web buffer.
 {lhs}		{rhs}
 --------	------------------------
 O		<Plug>(aref_web_open_browser_current_url)
@@ -164,12 +164,12 @@ O		<Plug>(aref_web_open_browser_current_url)
 ------------------------------------------------------------------------------
 関数						*aref_web-functions*
 
-aref_web#open({...})				*aref_web#open()*
+aref_web#open_webpage({...})			*aref_web#open_webpage()*
 
 |:Aref|の関数版。
 
 
-aref_web#open_webpage({...})			*aref_web#open_webpage()*
+aref_web#open_browser()				*aref_web#open_browser()*
 
 |:ArefOpenBrowser|の関数版。
 

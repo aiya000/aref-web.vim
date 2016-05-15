@@ -100,7 +100,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 		execute 'normal! G"_ddgg'
 
 		" Save url for open-browser.vim
-		let b:aref_web_curret_url = s:request_url
+		let b:aref_web_current_url = s:request_url
 
 		" Mapping default keymappings
 		if g:aref_web_enable_default_keymappings
@@ -158,5 +158,5 @@ function! aref_web#open_browser() abort
 		call s:echo_error('Please call from filetype=aref_web buffer')
 		return
 	endif
-	call openbrowser#open(b:aref_web_curret_url)
+	call openbrowser#open(b:aref_web_current_url)
 endfunction

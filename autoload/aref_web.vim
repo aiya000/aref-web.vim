@@ -7,15 +7,6 @@ function! s:load_data_list() abort " {{{
 	return s:List
 endfunction " }}}
 
-" If not exists Vital.Web.HTTP yet, load it.
-" and Return Vital.Web.HTTP instance.
-function! s:load_web_http() abort " {{{
-	if !exists('s:HTTP')
-		let s:HTTP = vital#aref_web#import('Web.HTTP')
-	endif
-	return s:HTTP
-endfunction " }}}
-
 " If keys(g:aref_web_source) contains a:source_name, Return true.
 " otherwise Return false.
 function! s:is_supported_source(source_name) abort " {{{
@@ -48,12 +39,14 @@ function! s:echo_error(msg) abort " {{{
 endfunction " }}}
 
 "Example: echo s:get_target_url('stackage', ['Int', '->', 'Int'])
-"  ==> 'https://www.stackage.org/(lts-5.15 or other version)/hoogle?q=Int%20-%3E%20Int'
-function! s:get_target_url(source_name, params) abort " {{{
+"  ==> 'https://www.stackage.org/(lts-5.15 or other version)/hoogle?q=Int+->+Int
+function! s:get_target_url(source_name, param_list) abort " {{{
 	"Example: Aref stackage Int -> Int  ==>  l:request_param == 'Int+->+Int'
-	let l:request_params = join(a:params, '+')
-	let l:encoded_params = s:load_web_http().encodeURI(l:request_params)
-	return printf(g:aref_web_source[a:source_name].url, l:encoded_params)
+	"Example: Aref stackage ($$+-)      ==>  l:request_param == '($$%2B-)'
+	" Avoid invalid url generating
+	let l:encoded_param_list = map(a:param_list, 'substitute(v:val, "+", "%2B", "g")')
+	let l:request_params     = join(l:encoded_param_list, '+')
+	return printf(g:aref_web_source[a:source_name].url, l:request_params)
 endfunction " }}}
 
 "Example: echo s:get_buffer_name('stackage', ['Int', '->', 'Int'])

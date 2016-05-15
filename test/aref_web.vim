@@ -39,10 +39,20 @@ function! s:suite.get_target_url_test() abort
 	\		'url' : 'http://example.com/%s'
 	\	}
 	\}
-	let l:encoded_params = s:HTTP.encodeURI('hoge+to+ahoge')
-	let l:expedted = printf(g:aref_web_source.foo.url, l:encoded_params)
-	let l:act      = s:get_target_url('foo', ['hoge', 'to', 'ahoge'])
-	call s:assert.equals(l:act, l:expedted)
+	let l:param_list1 = ['Int', '->', 'Int']
+	let l:expedted1   = printf(g:aref_web_source.foo.url, 'Int+->+Int')
+	let l:act1        = s:get_target_url('foo', l:param_list1)
+	call s:assert.equals(l:act1, l:expedted1)
+
+	let l:param_list2 = ['Monad', 'm', '=>', 'm', 'a', '->', '(a', '->', 'm', 'b)', '->', 'm', 'b']
+	let l:expedted2   = printf(g:aref_web_source.foo.url, 'Monad+m+=>+m+a+->+(a+->+m+b)+->+m+b')
+	let l:act2        = s:get_target_url('foo', l:param_list2)
+	call s:assert.equals(l:act2, l:expedted2)
+
+	let l:param_list3 = ['($$+-)']
+	let l:expedted3   = printf(g:aref_web_source.foo.url, '($$%2B-)')  " Encode '+' of param
+	let l:act3        = s:get_target_url('foo', l:param_list3)
+	call s:assert.equals(l:act3, l:expedted3)
 endfunction
 
 function! s:suite.can_use_dump_cmd_test() abort

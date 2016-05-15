@@ -72,7 +72,7 @@ endfunction " }}}
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
 function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords) abort " {{{
-	"-- This s: scope variables will be unlet by ArefWebOpenBuffer()
+	"-- These s: scope variables will be unlet by ArefWebOpenBuffer()
 	" Binding to s: scope
 	let s:buffer_name = a:buffer_name
 	let s:request_url = a:request_url
@@ -102,8 +102,10 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 		" Save url for open-browser.vim
 		let b:aref_web_curret_url = s:request_url
 
-		" Mapping default keymapping
-		call s:map_default_keys()
+		" Mapping default keymappings
+		if g:aref_web_enable_default_keymappings
+			call s:map_default_keys()
+		endif
 
 		" Highlight searched keyword
 		execute printf('syntax match arefWebKeyword "%s"', s:search_keywords)
@@ -114,6 +116,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 		wincmd p
 	endfunction
 
+	"NOTE:
 	" Why "exit_cb" don't use funcref ?
 	" It's derived vim spec
 	let l:command  = printf('curl %s -o %s', a:request_url, s:tempname)

@@ -30,7 +30,7 @@ let g:aref_web_source = {
   - +job
 
 * Vim plugins
-  - (optional) [open-browser.vim](http://github.com/tyru/open-browser.vim)
+  - (optional) [open-browser.vim](http://github.com/tyru/open-browser.vim) (for :ArefOpenBrowser)
 
 * Commands
   - curl
@@ -42,10 +42,8 @@ let g:aref_web_source = {
 
 ## TODO
 
-- Use existing aref_web type buffer
 - Redo search cursor word on enter key pressed
 - Add exclusion support
-- Default keymapping to optional
 
 
 ## I Wish !!

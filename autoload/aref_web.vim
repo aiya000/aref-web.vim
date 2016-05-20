@@ -1,3 +1,19 @@
+"-------------------"
+" Variables
+
+" If any job is progressive, this value is set v:true .
+" and this value is set v:false when it job terminated .
+" this value is set by s:open_webpage_buffer_async() .
+"
+" this value for parallel execution these.
+" > :Aref weblio foo
+" > :Aref weblio bar
+let s:another_job_progresssive = v:false
+
+
+"-------------------"
+" subroutine functions
+
 " If not exists Vital.Data.List yet, load it.
 " and Return Vital.Data.List instance.
 function! s:load_data_list() abort " {{{
@@ -64,7 +80,16 @@ endfunction " }}}
 
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
-function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords) abort " {{{
+function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords, _) abort " {{{
+	" Progress only one job
+	if s:another_job_progresssive
+		" Recurse by timer
+		call timer_start(500, function('s:open_webpage_buffer_async', [a:buffer_name, a:request_url, a:search_keywords]))
+		return
+	endif
+	" Represent starting current job progress
+	let s:another_job_progresssive = v:true
+
 	"-- These s: scope variables will be unlet by ArefWebOpenBuffer()
 	" Binding to s: scope
 	let s:buffer_name = a:buffer_name
@@ -107,6 +132,8 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 		unlet s:buffer_name s:request_url s:search_keywords s:stdout_result s:tempname
 		setl nomodifiable
 		wincmd p
+		" Represent current job termination
+		let s:another_job_progresssive = v:false
 	endfunction
 
 	"NOTE:
@@ -119,7 +146,9 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 	\})
 endfunction " }}}
 
+
 "-------------------"
+" autoload functions
 
 " Open webpage buffer async
 function! aref_web#open_webpage(...) abort
@@ -136,7 +165,7 @@ function! aref_web#open_webpage(...) abort
 	endif
 	let l:request_url = s:get_target_url(l:source_name, a:000[1:])
 	let l:buffer_name = s:get_buffer_name(l:source_name, a:000[1:])
-	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:])
+	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:], v:null)
 endfunction
 
 " Open current url by open-browser.vim in filetype=aref_web buffer

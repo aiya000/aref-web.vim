@@ -1,4 +1,4 @@
-# aref-web.vim
+# aref-web.vim [![Powered by vital.vim](https://img.shields.io/badge/powered%20by-vital.vim-80273f.svg)](https://github.com/vim-jp/vital.vim)
 
 aref-web.vim can open web dictionaries on the vim async.
 

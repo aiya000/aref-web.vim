@@ -29,7 +29,7 @@ let g:aref_web_source = {
 
 ## Requirements
 
-* Vim options
+* Vim build options
   - +job
 
 * Vim plugins
@@ -46,12 +46,12 @@ let g:aref_web_source = {
 ## TODO
 
 - Redo search cursor word on enter key pressed
-- Add exclusion support
 
 
 ## I Wish !!
 
 - Pull request for English document
+- Fix my poor English anywhere
 - (and other PRs)
 
 

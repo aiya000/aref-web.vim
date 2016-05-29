@@ -84,7 +84,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
-		call timer_start(500, function('s:open_webpage_buffer_async', [a:buffer_name, a:request_url, a:search_keywords]))
+		call timer_start(3000, function('s:open_webpage_buffer_async', [a:buffer_name, a:request_url, a:search_keywords]))
 		return
 	endif
 	" Represent starting current job progress

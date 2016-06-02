@@ -1,7 +1,5 @@
 language: generic
 
-sudo: false
-
 install:
     # Prepare environment
     - mkdir -p ~/.vim/bundle/repos/github.com
@@ -13,7 +11,14 @@ install:
     - git clone https://github.com/tyru/open-browser.vim ~/.vim/bundle/repos/github.com/tyru/open-browser.vim
     - git clone https://github.com/aiya000/aref-web.vim ~/Repository/aref-web.vim
     # Build just version vim to ~/vim-7.4.1689
-    - ( if [ ! -d ~/vim-7.4.1689/bin ]; then git clone https://github.com/vim/vim /tmp/vim && cd /tmp/vim && git checkout v7.4.1689 && ./configure --prefix=$HOME/vim-7.4.1689 && make && make install; fi )
+    - if [ ! -d ~/vim-7.4.1689/bin ] ; then
+      git clone https://github.com/vim/vim /tmp/vim &&
+      cd /tmp/vim &&
+      git checkout v7.4.1689 &&
+      ./configure --prefix=$HOME/vim-7.4.1689 &&
+      make &&
+      make install;
+      fi
     - export THEMIS_VIM=$HOME/vim-7.4.1689/bin/vim
 
 cache:

@@ -1,5 +1,6 @@
 let s:ScriptLocal = vital#aref_web#import('Vim.ScriptLocal')
 let s:HTTP        = vital#aref_web#import('Web.HTTP')
+let s:Optional    = vital#aref_web#import('Data.Optional')
 
 "-------------------"
 
@@ -15,6 +16,7 @@ let s:get_target_url       = s:funcs.get_target_url
 let s:can_use_dump_cmd     = s:funcs.can_use_dump_cmd
 let s:have_openbrowser_vim = s:funcs.have_openbrowser_vim
 let s:url_has_page_num     = s:funcs.url_has_page_num
+let s:get_next_page_url    = s:funcs.get_next_page_url
 
 "-------------------"
 
@@ -105,4 +107,18 @@ function! s:suite.url_has_page_num_test() abort
 	let l:act4 = s:url_has_page_num('http://google.co.jp')
 	call s:assert.same(l:act3, v:false, 'fail of 3')
 	call s:assert.same(l:act4, v:false, 'fail of 4')
+endfunction
+
+function! s:suite.get_next_page_url_test() abort
+	" These result has a value
+	let l:act1 = s:get_next_page_url('https://www.stackage.org/lts-6.6/hoogle?q=%28%3C%2B%2B%29&page=1')
+	let l:act2 = s:get_next_page_url('http://www.bing.com/search?q=haskell&first=11')
+	call s:assert.false(s:Optional.empty(l:act1))
+	call s:assert.false(s:Optional.empty(l:act2))
+
+	" These result has not a value
+	let l:act3 = s:get_next_page_url('https://www.stackage.org/lts-6.6/hoogle?q=%28%3C%2B%2B%29')
+	let l:act4 = s:get_next_page_url('http://google.co.jp')
+	call s:assert.true(s:Optional.empty(l:act3))
+	call s:assert.true(s:Optional.empty(l:act4))
 endfunction

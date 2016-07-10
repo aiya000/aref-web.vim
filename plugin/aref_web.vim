@@ -50,3 +50,9 @@ command! -bar ArefOpenBrowser call aref_web#open_browser()
 nnoremap <silent> <Plug>(aref_web_open_browser_current_url) :<C-u>call aref_web#open_browser()<CR>
 
 "nnoremap <silent> <Plug>(aref_web_open_cur_source_cword) :<C-u>call
+
+" Show next page
+nnoremap <silent> <Plug>(aref_web_show_next_page) :<C-u>call aref_web#show_next_page()<CR>
+
+" Show previous page
+nnoremap <silent> <Plug>(aref_web_show_prev_page) :<C-u>call aref_web#show_prev_page()<CR>

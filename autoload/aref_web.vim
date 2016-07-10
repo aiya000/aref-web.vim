@@ -14,6 +14,11 @@ let s:another_job_progresssive = v:false
 "-------------------"
 " subroutine functions
 
+" Convert numeric_boolean to boolean
+function! s:bool(num) abort " {{{
+	return (a:num is 0) ? v:false : v:true
+endfunction " }}}
+
 " If not exists Vital.Data.List yet, load it.
 " and Return Vital.Data.List instance.
 function! s:load_data_list() abort " {{{
@@ -21,6 +26,24 @@ function! s:load_data_list() abort " {{{
 		let s:List = vital#aref_web#import('Data.List')
 	endif
 	return s:List
+endfunction " }}}
+
+" If not exists Vital.Data.String yet, load it.
+" and Return Vital.Data.String instance.
+function! s:load_data_string() abort " {{{
+	if !exists('s:String')
+		let s:String = vital#aref_web#import('Data.String')
+	endif
+	return s:String
+endfunction " }}}
+
+" If not exists Vital.Data.Optional yet, load it.
+" and Return Vital.Data.Optional instance.
+function! s:load_data_optional() abort " {{{
+	if !exists('s:Optional')
+		let s:Optional = vital#aref_web#import('Data.Optional')
+	endif
+	return s:Optional
 endfunction " }}}
 
 " If keys(g:aref_web_source) contains a:source_name, Return true.
@@ -75,12 +98,14 @@ endfunction " }}}
 
 " Do nmap for filetype=aref_web buffer
 function! s:map_default_keys() abort " {{{
-	nmap <buffer> O <Plug>(aref_web_open_browser_current_url)
+	nmap <buffer> O     <Plug>(aref_web_open_browser_current_url)
+	nmap <buffer> <C-a> <Plug>(aref_web_show_next_page)
+	nmap <buffer> <C-x> <Plug>(aref_web_show_prev_page)
 endfunction " }}}
 
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
-function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords, _) abort " {{{
+function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords) abort " {{{
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
@@ -98,7 +123,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	let s:search_keywords = join(a:search_keywords)
 	" job_start()'s result
 	let s:stdout_result = ''
-	" Be referenced by job_start() and ArefWebOpenBuffer()
+	" Referenced by job_start() and ArefWebOpenBuffer()
 	let s:tempname = tempname() . '.html'
 	"--
 
@@ -110,6 +135,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
 	function! ArefWebOpenBuffer(_, __) abort
 		execute 'new' s:buffer_name
+		" Set buffer type of scratch
 		setl noswapfile buftype=nofile filetype=aref_web
 		"----------"
 		" Show html page detail
@@ -139,12 +165,102 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	"NOTE:
 	" Why "exit_cb" don't use funcref ?
 	" It's derived vim spec
-	let l:command  = printf('curl %s -o %s', a:request_url, s:tempname)
+	let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
 	call job_start(l:command, {
 	\	'out_cb'  : function('s:aggregate_stdout'),
 	\	'exit_cb' : 'ArefWebOpenBuffer'
 	\})
 endfunction " }}}
+
+" Check url format.
+" If url's query parameter contains num, return v:true.
+" otherwise return v:false
+function! s:url_has_page_num(url) abort " {{{
+	" If url string doesn't have "?", url doesn't have query parameter
+	if match(a:url, '?') is -1
+		return v:false
+	endif
+
+	" Does the url parameters contain some num ?
+	let [_, l:params] = split(a:url, '?')
+	let l:result      = match(l:params, '=\d') isnot -1
+	return s:bool(l:result)
+endfunction " }}}
+
+" If url has page num, Return next page url.
+" otherwise Return none.
+function! s:get_next_page_url(current_url) abort " {{{
+	let l:O = s:load_data_optional()
+	let l:S = s:load_data_string()
+
+	if !s:url_has_page_num(a:current_url)
+		return l:O.none()
+	endif
+	let l:page_num     = matchstr(a:current_url, '=\zs\d\+\ze')
+	let l:nextpage_url = l:S.substitute_last(a:current_url, '=\zs\d\+\ze', l:page_num + 1)
+	return l:O.some(l:nextpage_url)
+endfunction " }}}
+
+" Like s:open_webpage_buffer_async(), but I don't open new buffer
+" I use "target_aref_web_bufnr" buffer instead of new buffer
+function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url) abort
+	" Progress only one job
+	if s:another_job_progresssive
+		" Recurse by timer
+		call timer_start(3000, function('s:show_webpage_buffer_async', [a:target_aref_web_bufnr, a:request_url]))
+		return
+	endif
+	" Represent starting current job progress
+	let s:another_job_progresssive = v:true
+
+	"-- These s: scope variables will be unlet by ArefWebShowBuffer()
+	" Binding to s: scope
+	let s:target_bufnr = a:target_aref_web_bufnr
+	let s:request_url  = a:request_url
+	" job_start()'s result
+	let s:stdout_result = ''
+	" Referenced by job_start() and ArefWebShowBuffer()
+	let s:tempname = tempname() . '.html'
+	"--
+
+	" "out_cb" function for "curl {url} -o {s:tempname}"
+	function! s:aggregate_stdout(_, stdout) abort
+		let s:stdout_result .= a:stdout
+	endfunction
+
+	" "exit_cb" function for "curl {url} -o {s:tempname}"
+	function! ArefWebShowBuffer(_, __) abort
+		let l:current_bufnr = winbufnr('.')
+		execute 'buffer' s:target_bufnr
+		" Unlock for modifying
+		setl modifiable
+		"----------"
+		" Show html page detail
+		let l:dump_cmd = printf(g:aref_web_dump_cmd, s:tempname)
+		execute 'normal! gg"_dG'
+		1put!=system(l:dump_cmd)
+		execute 'normal! G"_ddgg'
+
+		" Save url for open-browser.vim
+		let b:aref_web_current_url = s:request_url
+
+		"----------"
+		unlet s:request_url s:stdout_result s:tempname
+		setl nomodifiable
+		execute 'buffer' l:current_bufnr
+		" Represent current job termination
+		let s:another_job_progresssive = v:false
+	endfunction
+
+	"NOTE:
+	" Why "exit_cb" don't use funcref ?
+	" It's derived vim spec
+	let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
+	call job_start(l:command, {
+	\	'out_cb'  : function('s:aggregate_stdout'),
+	\	'exit_cb' : 'ArefWebShowBuffer'
+	\})
+endfunction
 
 
 "-------------------"
@@ -165,8 +281,9 @@ function! aref_web#open_webpage(...) abort
 	endif
 	let l:request_url = s:get_target_url(l:source_name, a:000[1:])
 	let l:buffer_name = s:get_buffer_name(l:source_name, a:000[1:])
-	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:], v:null)
+	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:])
 endfunction
+
 
 " Open current url by open-browser.vim in filetype=aref_web buffer
 function! aref_web#open_browser() abort
@@ -181,4 +298,29 @@ function! aref_web#open_browser() abort
 		return
 	endif
 	call openbrowser#open(b:aref_web_current_url)
+endfunction
+
+
+" Show next page
+function! aref_web#show_next_page() abort
+	let l:O = s:load_data_optional()
+
+	let l:maybe_nextpage_url = s:get_next_page_url(b:aref_web_current_url)
+	if l:O.empty(l:maybe_nextpage_url)
+		echohl Error
+		echo "Sorry, this site url doesn't support page moving"
+		echohl None
+		return
+	endif
+
+	echo 'aref_web> go to next page'
+	let l:nextpage_url  = l:O.get_unsafe(l:maybe_nextpage_url)
+	let l:current_bufnr = winbufnr('.')
+	call s:show_webpage_buffer_async(l:current_bufnr, l:nextpage_url)
+endfunction
+
+
+" Show previous page
+function! aref_web#show_prev_page() abort
+	
 endfunction

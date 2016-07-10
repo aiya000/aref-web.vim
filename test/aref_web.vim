@@ -115,6 +115,12 @@ function! s:suite.get_next_page_url_test() abort
 	let l:act2 = s:get_next_page_url('http://www.bing.com/search?q=haskell&first=11')
 	call s:assert.false(s:Optional.empty(l:act1))
 	call s:assert.false(s:Optional.empty(l:act2))
+	call s:assert.equals(
+	\	s:Optional.get_unsafe(l:act1),
+	\	'https://www.stackage.org/lts-6.6/hoogle?q=%28%3C%2B%2B%29&page=2')
+	call s:assert.equals(
+	\	s:Optional.get_unsafe(l:act2),
+	\	'http://www.bing.com/search?q=haskell&first=12')
 
 	" These result has not a value
 	let l:act3 = s:get_next_page_url('https://www.stackage.org/lts-6.6/hoogle?q=%28%3C%2B%2B%29')

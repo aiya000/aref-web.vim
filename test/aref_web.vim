@@ -14,6 +14,7 @@ let s:is_supported_source  = s:funcs.is_supported_source
 let s:get_target_url       = s:funcs.get_target_url
 let s:can_use_dump_cmd     = s:funcs.can_use_dump_cmd
 let s:have_openbrowser_vim = s:funcs.have_openbrowser_vim
+let s:url_has_page_num     = s:funcs.url_has_page_num
 
 "-------------------"
 
@@ -90,4 +91,18 @@ function! s:suite.have_openbrowser_vim_test() abort
 	catch /^AHOGEHOGE/
 		call s:assert.fail('fatal exception, Please check test logic')
 	endtry
+endfunction
+
+function! s:suite.url_has_page_num_test() abort
+	" These url has page num
+	let l:act1 = s:url_has_page_num('https://www.stackage.org/lts-6.6/hoogle?q=%28%3C%2B%2B%29&page=1')
+	let l:act2 = s:url_has_page_num('http://www.bing.com/search?q=haskell&first=11')
+	call s:assert.same(l:act1, v:true, 'fail of 1')
+	call s:assert.same(l:act2, v:true, 'fail of 2')
+
+	" These url has not page num
+	let l:act3 = s:url_has_page_num('https://www.stackage.org/lts-6.6/hoogle?q=%28%3C%2B%2B%29')
+	let l:act4 = s:url_has_page_num('http://google.co.jp')
+	call s:assert.same(l:act3, v:false, 'fail of 3')
+	call s:assert.same(l:act4, v:false, 'fail of 4')
 endfunction

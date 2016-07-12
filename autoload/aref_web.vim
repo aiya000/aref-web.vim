@@ -187,7 +187,7 @@ function! s:url_has_page_num(url) abort " {{{
 	return s:bool(l:result)
 endfunction " }}}
 
-" If url has page num, Return next page url.
+" If url has page num, return next page url.
 " otherwise Return none.
 function! s:get_next_page_url(current_url) abort " {{{
 	let l:O = s:load_data_optional()
@@ -199,6 +199,20 @@ function! s:get_next_page_url(current_url) abort " {{{
 	let l:page_num     = matchstr(a:current_url, '=\zs\d\+\ze')
 	let l:nextpage_url = l:S.substitute_last(a:current_url, '=\zs\d\+\ze', l:page_num + 1)
 	return l:O.some(l:nextpage_url)
+endfunction " }}}
+
+" If url has page num, return previous page url.
+" otherwise return none.
+function! s:get_prev_page_url(current_url) abort " {{{
+	let l:O = s:load_data_optional()
+	let l:S = s:load_data_string()
+
+	if !s:url_has_page_num(a:current_url)
+		return l:O.none()
+	endif
+	let l:page_num     = matchstr(a:current_url, '=\zs\d\+\ze')
+	let l:prevpage_url = l:S.substitute_last(a:current_url, '=\zs\d\+\ze', l:page_num - 1)
+	return l:O.some(l:prevpage_url)
 endfunction " }}}
 
 " Like s:open_webpage_buffer_async(), but I don't open new buffer
@@ -322,5 +336,18 @@ endfunction
 
 " Show previous page
 function! aref_web#show_prev_page() abort
-	
+	let l:O = s:load_data_optional()
+
+	let l:maybe_prevpage_url = s:get_prev_page_url(b:aref_web_current_url)
+	if l:O.empty(l:maybe_prevpage_url)
+		echohl Error
+		echo "Sorry, this site url doesn't support page moving"
+		echohl None
+		return
+	endif
+
+	echo 'aref_web> go to previous page'
+	let l:prevpage_url  = l:O.get_unsafe(l:maybe_prevpage_url)
+	let l:current_bufnr = winbufnr('.')
+	call s:show_webpage_buffer_async(l:current_bufnr, l:prevpage_url)
 endfunction

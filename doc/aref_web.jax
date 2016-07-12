@@ -158,8 +158,24 @@ g:aref_web_enable_default_keymappings	*g:aref_web_enable_default_keymappings*
 <Plug>(aref_web_open_browser_current_url)
 	有効モード: normal mode
 
-　:ArefOpenBrowserのキーマッピング版です。
-詳しくは |ArefOpenBrowser| を参照。
+|:ArefOpenBrowser|の関数版。
+
+
+<Plug>(aref_web_show_next_page)		*<Plug>(aref_web_show_next_page)*
+	有効モード: normal mode
+
+　もし 'https://www.stackage.org/lts-6.6/hoogle?q=Int+->+Int&page=1'
+のように、 URLの整数型のクエリ文字列があれば
+'https://www.stackage.org/lts-6.6/hoogle?q=Int+->+Int&page=2'
+のような、末尾のクエリ文字列の整数値を +1 したURLを
+現在のaref_webバッファに (非同期的に) 読み込みます。
+
+
+<Plug>(aref_web_show_prev_page)		*<Plug>(aref_web_show_prev_page)*
+	有効モード: normal mode
+
+|<Plug>(aref_web_show_next_page)|と似たような動作をしますが、
+こちらは、その整数値を -1 したURLを (非同期に) 読み込みます。
 
 
 						*aref_web-default-key-mappings*
@@ -167,6 +183,8 @@ g:aref_web_enable_default_keymappings	*g:aref_web_enable_default_keymappings*
 Normal mode default key mappings for filetype=aref_web buffer.
 {lhs}		{rhs}
 --------	------------------------
+<C-a>		<Plug>(aref_web_show_next_page)
+<C-x>		<Plug>(aref_web_show_prev_page)
 O		<Plug>(aref_web_open_browser_current_url)
 
 
@@ -176,6 +194,16 @@ O		<Plug>(aref_web_open_browser_current_url)
 aref_web#open_webpage({...})			*aref_web#open_webpage()*
 
 |:Aref|の関数版。
+
+
+aref_web#show_next_page()			*aref_web#show_next_page()*
+
+|<Plug>(aref_web_show_next_page)|の関数版。
+
+
+aref_web#show_prev_page()			*aref_web#show_prev_page()*
+
+|<Plug>(aref_web_show_prev_page)|の関数版。
 
 
 aref_web#open_browser()				*aref_web#open_browser()*

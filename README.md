@@ -14,7 +14,7 @@ aref-web.vim can open web dictionaries on the vim async.
 ```vim
 let g:aref_web_source = {
 \  'stackage' : {
-\    'url' : 'https://www.stackage.org/lts-5.15/hoogle?q=%s'
+\    'url' : 'https://www.stackage.org/lts-6.6/hoogle?q=%s&page=1'
 \  }
 \}
 ```
@@ -25,7 +25,7 @@ let g:aref_web_source = {
 :Aref stackage Int -> Int
 ```
 
-- 3. https://www.stackage.org/lts-5.15/hoogle?q=Int+->+Int will be open in buffer async
+- 3. https://www.stackage.org/lts-6.6/hoogle?q=Int+->+Int&page=1 will be open in buffer async
 
 ## Requirements
 

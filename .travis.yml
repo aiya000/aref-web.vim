@@ -29,7 +29,7 @@ before_script:
     - $HOME/vim-7.4.1689/bin/vim --version
 
 script:
-    - ~/.vim/bundle/repos/github.com/thinca/vim-themis/bin/themis ~/Repository/aref-web.vim/test --reporter spec
+    - ~/.vim/bundle/repos/github.com/thinca/vim-themis/bin/themis ~/Repository/aref-web.vim/test/aref_web --reporter spec
 
 branches:
     - master

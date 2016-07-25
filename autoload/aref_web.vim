@@ -16,7 +16,8 @@ let s:another_job_progresssive = v:false
 
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
-function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords) abort " {{{
+" (4th formal argument for timer_start()'s real argument)
+function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords, _) abort " {{{
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
@@ -39,12 +40,12 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords)
 	"--
 
 	" "out_cb" function for "curl {url} -o {s:tempname}"
-	function! s:aggregate_stdout(_, stdout) abort
+	function! s:aggregate_stdout(__, stdout) abort
 		let s:stdout_result .= a:stdout
 	endfunction
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! ArefWebOpenBuffer(_, __) abort
+	function! ArefWebOpenBuffer(__, ___) abort
 		execute 'new' s:buffer_name
 		" Set buffer type of scratch
 		setl noswapfile buftype=nofile filetype=aref_web
@@ -85,7 +86,8 @@ endfunction " }}}
 
 " Like s:open_webpage_buffer_async(), but I don't open new buffer
 " I use "target_aref_web_bufnr" buffer instead of new buffer
-function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url) abort " {{{
+" (4th formal argument for timer_start()'s real argument)
+function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abort " {{{
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
@@ -106,12 +108,12 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url) abort 
 	"--
 
 	" "out_cb" function for "curl {url} -o {s:tempname}"
-	function! s:aggregate_stdout(_, stdout) abort
+	function! s:aggregate_stdout(__, stdout) abort
 		let s:stdout_result .= a:stdout
 	endfunction
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! ArefWebShowBuffer(_, __) abort
+	function! ArefWebShowBuffer(__, ___) abort
 		let l:current_bufnr = winbufnr('.')
 		execute 'buffer' s:target_bufnr
 		" Unlock for modifying
@@ -165,7 +167,7 @@ function! aref_web#open_webpage(...) abort
 	endif
 	let l:request_url = aref_web#stateful#get_target_url(l:source_name, a:000[1:])
 	let l:buffer_name = aref_web#stateless#get_buffer_name(l:source_name, a:000[1:])
-	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:])
+	call s:open_webpage_buffer_async(l:buffer_name, l:request_url, a:000[1:], v:null)
 endfunction
 
 
@@ -201,7 +203,7 @@ function! aref_web#show_next_page() abort
 	echo 'aref_web> go to next page'
 	let l:nextpage_url  = l:O.get_unsafe(l:maybe_nextpage_url)
 	let l:current_bufnr = winbufnr('.')
-	call s:show_webpage_buffer_async(l:current_bufnr, l:nextpage_url)
+	call s:show_webpage_buffer_async(l:current_bufnr, l:nextpage_url, v:null)
 endfunction
 
 
@@ -219,5 +221,5 @@ function! aref_web#show_prev_page() abort
 	echo 'aref_web> go to previous page'
 	let l:prevpage_url  = l:O.get_unsafe(l:maybe_prevpage_url)
 	let l:current_bufnr = winbufnr('.')
-	call s:show_webpage_buffer_async(l:current_bufnr, l:prevpage_url)
+	call s:show_webpage_buffer_async(l:current_bufnr, l:prevpage_url, v:null)
 endfunction

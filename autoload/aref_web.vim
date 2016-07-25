@@ -150,15 +150,17 @@ endfunction " }}}
 
 " Open webpage buffer async
 function! aref_web#open_webpage(...) abort
+	let l:M = aref_web#vital_load#vim_message()
+
 	let l:source_name = a:1
 	if !aref_web#stateful#is_supported_source(l:source_name)
-		call aref_web#stateless#echo_error(l:source_name . ' is not supported.')
-		call aref_web#stateless#echo_error('Please verify g:loaded_aref_web')
+		call l:M.error(l:source_name . ' is not supported.')
+		call l:M.error('Please verify g:loaded_aref_web')
 		return
 	endif
 	if !aref_web#stateful#can_use_dump_cmd()
-		call aref_web#stateless#echo_error('Sorry. aref_web.vim needs w3m, lynx, elinks or links browser.')
-		call aref_web#stateless#echo_error('Please add it to your $PATH')
+		call l:M.error('Sorry. aref_web.vim needs w3m, lynx, elinks or links browser.')
+		call l:M.error('Please add it to your $PATH')
 		return
 	endif
 	let l:request_url = aref_web#stateful#get_target_url(l:source_name, a:000[1:])
@@ -169,14 +171,16 @@ endfunction
 
 " Open current url by open-browser.vim in filetype=aref_web buffer
 function! aref_web#open_browser() abort
+	let l:M = aref_web#vital_load#vim_message()
+
 	if !aref_web#stateful#have_openbrowser_vim()
-		call aref_web#stateless#echo_error('calling open-browser.vim failed')
-		call aref_web#stateless#echo_error('Please install and load open-browser.vim')
+		call l:M.error('calling open-browser.vim failed')
+		call l:M.error('Please install and load open-browser.vim')
 		return
 	endif
 	if &filetype !=# 'aref_web'
-		call aref_web#stateless#echo_error('Invalid call situation')
-		call aref_web#stateless#echo_error('Please call from filetype=aref_web buffer')
+		call l:M.error('Invalid call situation')
+		call l:M.error('Please call from filetype=aref_web buffer')
 		return
 	endif
 	call openbrowser#open(b:aref_web_current_url)
@@ -185,13 +189,12 @@ endfunction
 
 " Show next page
 function! aref_web#show_next_page() abort
+	let l:M = aref_web#vital_load#vim_message()
 	let l:O = aref_web#vital_load#data_optional()
 
 	let l:maybe_nextpage_url = aref_web#stateless#get_next_page_url(b:aref_web_current_url)
 	if l:O.empty(l:maybe_nextpage_url)
-		echohl Error
-		echo "Sorry, this site url doesn't support page moving"
-		echohl None
+		call l:M.error("Sorry, this site url doesn't support page moving")
 		return
 	endif
 
@@ -204,13 +207,12 @@ endfunction
 
 " Show previous page
 function! aref_web#show_prev_page() abort
+	let l:M = aref_web#vital_load#vim_message()
 	let l:O = aref_web#vital_load#data_optional()
 
 	let l:maybe_prevpage_url = aref_web#stateless#get_prev_page_url(b:aref_web_current_url)
 	if l:O.empty(l:maybe_prevpage_url)
-		echohl Error
-		echo "Sorry, this site url doesn't support page moving"
-		echohl None
+		call l:M.error("Sorry, this site url doesn't support page moving")
 		return
 	endif
 

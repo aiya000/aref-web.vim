@@ -11,13 +11,6 @@ endfunction " }}}
 
 "---
 
-" Do echomsg the error
-function! aref_web#stateless#echo_error(msg) abort " {{{
-	echohl Error
-	echomsg a:msg
-	echohl None
-endfunction " }}}
-
 "Example: echo aref_web#stateless#get_buffer_name('stackage', ['Int', '->', 'Int'])
 "  ==> '[aref-web: stackage Int -> Int]'
 function! aref_web#stateless#get_buffer_name(source_name, params) abort " {{{

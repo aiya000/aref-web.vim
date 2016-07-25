@@ -6,3 +6,4 @@ Vim.ScriptLocal
 Web.HTTP
 Data.String
 Data.Optional
+Vim.Message

@@ -28,3 +28,12 @@ function! aref_web#vital_load#data_optional() abort " {{{
 	endif
 	return s:Optional
 endfunction " }}}
+
+" If not exists Vim.Message yet, load it.
+" and Return Vim.Message instance.
+function! aref_web#vital_load#vim_message() abort " {{{
+	if !exists('s:Message')
+		let s:Message = vital#aref_web#import('Vim.Message')
+	endif
+	return s:Message
+endfunction " }}}

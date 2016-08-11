@@ -115,7 +115,7 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abo
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
 	function! ArefWebShowBuffer(__, ___) abort
 		let l:current_bufnr = winbufnr('.')
-		execute 'buffer' s:target_bufnr
+		execute 'buffer!' s:target_bufnr
 		" Unlock for modifying
 		setl modifiable
 		"----------"

@@ -23,7 +23,7 @@ endfunction " }}}
 " If keys(g:aref_web_source) contains a:source_name, return true.
 " otherwise return false.
 function! aref_web#stateful#is_supported_source(source_name) abort " {{{
-	let l:List = aref_web#vital_load#data_list()
+	let l:List = aref_web#vital_load#get('Data.List')
 	let l:supported_sources = keys(g:aref_web_source)
 	return l:List.has(l:supported_sources, a:source_name)
 endfunction " }}}
@@ -39,7 +39,7 @@ endfunction " }}}
 function! aref_web#stateful#get_target_url(source_name, param_list) abort " {{{
 	"Example: Aref stackage Int -> Int  ==>  l:request_param == 'Int+->+Int'
 	"Example: Aref stackage ($$+-)      ==>  l:request_param == '($$%2B-)'
-	" Avoid invalid url generating
+	" Parsent encoding for all chars
 	let l:encoded_param_list = map(a:param_list, 'substitute(v:val, "+", "%2B", "g")')
 	let l:request_params     = join(l:encoded_param_list, '+')
 	return printf(g:aref_web_source[a:source_name].url, l:request_params)

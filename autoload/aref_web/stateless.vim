@@ -37,8 +37,8 @@ endfunction " }}}
 " If url has page num, return next page url.
 " otherwise return none.
 function! aref_web#stateless#get_next_page_url(current_url) abort " {{{
-	let l:O = aref_web#vital_load#data_optional()
-	let l:S = aref_web#vital_load#data_string()
+	let l:O = aref_web#vital_load#get('Data.Optional')
+	let l:S = aref_web#vital_load#get('Data.String')
 
 	if !aref_web#stateless#url_has_page_num(a:current_url)
 		return l:O.none()
@@ -51,8 +51,8 @@ endfunction " }}}
 " If url has page num, return previous page url.
 " otherwise return none.
 function! aref_web#stateless#get_prev_page_url(current_url) abort " {{{
-	let l:O = aref_web#vital_load#data_optional()
-	let l:S = aref_web#vital_load#data_string()
+	let l:O = aref_web#vital_load#get('Data.Optional')
+	let l:S = aref_web#vital_load#get('Data.String')
 
 	if !aref_web#stateless#url_has_page_num(a:current_url)
 		return l:O.none()

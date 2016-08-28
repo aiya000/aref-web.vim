@@ -152,7 +152,7 @@ endfunction " }}}
 
 " Open webpage buffer async
 function! aref_web#open_webpage(...) abort
-	let l:M = aref_web#vital_load#vim_message()
+	let l:M = aref_web#vital_load#get('Vim.Message')
 
 	let l:source_name = a:1
 	if !aref_web#stateful#is_supported_source(l:source_name)
@@ -173,7 +173,7 @@ endfunction
 
 " Open current url by open-browser.vim in filetype=aref_web buffer
 function! aref_web#open_browser() abort
-	let l:M = aref_web#vital_load#vim_message()
+	let l:M = aref_web#vital_load#get('Vim.Message')
 
 	if !aref_web#stateful#have_openbrowser_vim()
 		call l:M.error('calling open-browser.vim failed')
@@ -191,8 +191,8 @@ endfunction
 
 " Show next page
 function! aref_web#show_next_page() abort
-	let l:M = aref_web#vital_load#vim_message()
-	let l:O = aref_web#vital_load#data_optional()
+	let l:M = aref_web#vital_load#get('Vim.Message')
+	let l:O = aref_web#vital_load#get('Data.Optional')
 
 	let l:maybe_nextpage_url = aref_web#stateless#get_next_page_url(b:aref_web_current_url)
 	if l:O.empty(l:maybe_nextpage_url)
@@ -209,8 +209,8 @@ endfunction
 
 " Show previous page
 function! aref_web#show_prev_page() abort
-	let l:M = aref_web#vital_load#vim_message()
-	let l:O = aref_web#vital_load#data_optional()
+	let l:M = aref_web#vital_load#get('Vim.Message')
+	let l:O = aref_web#vital_load#get('Data.Optional')
 
 	let l:maybe_prevpage_url = aref_web#stateless#get_prev_page_url(b:aref_web_current_url)
 	if l:O.empty(l:maybe_prevpage_url)

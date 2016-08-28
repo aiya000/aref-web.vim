@@ -3,6 +3,11 @@
 "
 
 "-------------------"
+" Vital modules
+
+let s:HTTP = vital#aref_web#import('Web.HTTP')
+
+"-------------------"
 " Themis variables
 
 let s:suite  = themis#suite('aref_web#stateful')
@@ -33,18 +38,21 @@ function! s:suite.get_target_url_test() abort
 	\		'url' : 'http://example.com/%s'
 	\	}
 	\}
-	let l:param_list1 = ['Int', '->', 'Int']
-	let l:expedted1   = printf(g:aref_web_source.foo.url, 'Int+->+Int')
+
+	" encodeURI() target is nothing
+	let l:param_list1 = ['throwM']
+	let l:expedted1   = printf(g:aref_web_source.foo.url, 'throwM')
 	let l:act1        = aref_web#stateful#get_target_url('foo', l:param_list1)
 	call s:assert.equals(l:act1, l:expedted1)
 
+	" The paramters chars to be encodeURI()
 	let l:param_list2 = ['Monad', 'm', '=>', 'm', 'a', '->', '(a', '->', 'm', 'b)', '->', 'm', 'b']
-	let l:expedted2   = printf(g:aref_web_source.foo.url, 'Monad+m+=>+m+a+->+(a+->+m+b)+->+m+b')
+	let l:expedted2   = printf(g:aref_web_source.foo.url, s:HTTP.encodeURI('Monad+m+=>+m+a+->+(a+->+m+b)+->+m+b'))
 	let l:act2        = aref_web#stateful#get_target_url('foo', l:param_list2)
 	call s:assert.equals(l:act2, l:expedted2)
 
 	let l:param_list3 = ['($$+-)']
-	let l:expedted3   = printf(g:aref_web_source.foo.url, '($$%2B-)')  " Encode '+' of param
+	let l:expedted3   = printf(g:aref_web_source.foo.url, s:HTTP.encodeURI('($$+-)'))
 	let l:act3        = aref_web#stateful#get_target_url('foo', l:param_list3)
 	call s:assert.equals(l:act3, l:expedted3)
 endfunction

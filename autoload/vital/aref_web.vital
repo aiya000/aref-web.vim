@@ -5,3 +5,4 @@ Vim.Message
 Data.List
 Data.String
 Data.Optional
+Web.HTTP

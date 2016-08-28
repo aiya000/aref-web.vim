@@ -37,10 +37,9 @@ endfunction " }}}
 "Example: echo aref_web#stateful#get_target_url('stackage', ['Int', '->', 'Int'])
 "  ==> 'https://www.stackage.org/(lts-5.15 or other version)/hoogle?q=Int+->+Int
 function! aref_web#stateful#get_target_url(source_name, param_list) abort " {{{
-	"Example: Aref stackage Int -> Int  ==>  l:request_param == 'Int+->+Int'
-	"Example: Aref stackage ($$+-)      ==>  l:request_param == '($$%2B-)'
-	" Parsent encoding for all chars
-	let l:encoded_param_list = map(a:param_list, 'substitute(v:val, "+", "%2B", "g")')
-	let l:request_params     = join(l:encoded_param_list, '+')
-	return printf(g:aref_web_source[a:source_name].url, l:request_params)
+	let l:HTTP = aref_web#vital_load#get('Web.HTTP')
+	let l:request_params = join(a:param_list, '+')
+	" Parsent encoding for all parameter chars
+	let l:request_query  = l:HTTP.encodeURI(l:request_params)
+	return printf(g:aref_web_source[a:source_name].url, l:request_query)
 endfunction " }}}

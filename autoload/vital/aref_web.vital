@@ -1,9 +1,7 @@
 aref_web
-1fceb56f4a73ea53af33dd063384029238fc4e09
+bff0d8c58c1fb6ab9e4a9fc0c672368502f10d88
 
+Vim.Message
 Data.List
-Vim.ScriptLocal
-Web.HTTP
 Data.String
 Data.Optional
-Vim.Message

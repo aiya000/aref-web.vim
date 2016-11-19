@@ -28,18 +28,16 @@ function! aref_web#stateful#is_supported_source(source_name) abort " {{{
 	return l:List.has(l:supported_sources, a:source_name)
 endfunction " }}}
 
-" If you have cui web browser, return true.
+" If you have some CLI web browser, return true.
 " otherwise return false.
 function! aref_web#stateful#can_use_dump_cmd() abort " {{{
 	return !empty(g:aref_web_dump_cmd)
 endfunction " }}}
 
-"Example: echo aref_web#stateful#get_target_url('stackage', ['Int', '->', 'Int'])
-"  ==> 'https://www.stackage.org/(lts-5.15 or other version)/hoogle?q=Int+->+Int
+" Create special url for source_name with param_list
 function! aref_web#stateful#get_target_url(source_name, param_list) abort " {{{
-	let l:HTTP = aref_web#vital_load#get('Web.HTTP')
-	let l:request_params = join(a:param_list, '+')
-	" Parsent encoding for all parameter chars
-	let l:request_query  = l:HTTP.encodeURI(l:request_params)
+	let l:HTTP          = aref_web#vital_load#get('Web.HTTP')
+	let l:params        = map(a:param_list, 'l:HTTP.encodeURI(v:val)')
+	let l:request_query = join(l:params, '+')
 	return printf(g:aref_web_source[a:source_name].url, l:request_query)
 endfunction " }}}

@@ -5,6 +5,8 @@
 
 aref-web.vim can open web dictionaries on the vim async.
 
+The use scene example exists [--here--](https://youtu.be/lQ-QpPtGck4) .
+
 ![aref-web-vim_preview](./aref-web-vim_preview.gif)
 
 ## Example

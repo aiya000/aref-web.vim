@@ -33,9 +33,8 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 
 	"-- These s: scope variables will be unlet by s:open_webpage_buffer()
 	" Binding to s: scope
-	let s:buffer_name = a:buffer_name
-	let s:request_url = a:request_url
-	"Example: ['a', '->', 'b'] ==> 'a -> b'
+	let s:buffer_name     = a:buffer_name
+	let s:request_url     = a:request_url
 	let s:search_keywords = join(a:search_keywords)
 	" job_start()'s result
 	let s:stdout_result = ''
@@ -47,7 +46,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	function! s:open_webpage_buffer(_, __) abort
 		execute 'new' s:buffer_name
 		" Set buffer type of scratch
-		setl noswapfile buftype=nofile filetype=aref_web
+		setl noswapfile buftype=nofile filetype=aref_web modifiable noreadonly
 		"----------"
 		" Show html page detail
 		let l:dump_cmd = printf(g:aref_web_dump_cmd, s:tempname)
@@ -67,7 +66,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 		highlight default link arefWebKeyword Special
 		"----------"
 		unlet s:buffer_name s:request_url s:search_keywords s:stdout_result s:tempname
-		setl nomodifiable
+		setl nomodifiable readonly
 		wincmd p
 		" Represent current job termination
 		let s:another_job_progresssive = v:false

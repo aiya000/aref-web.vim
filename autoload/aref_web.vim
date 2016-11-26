@@ -14,6 +14,11 @@ let s:another_job_progresssive = v:false
 "-------------------"
 " subroutine functions
 
+" Aggregate async stdout result to s:stdout_result
+function! s:aggregate_stdout(_, stdout) abort " {{{
+	let s:stdout_result .= a:stdout
+endfunction " }}}
+
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
 " (4th formal argument for timer_start()'s real argument)
@@ -38,11 +43,6 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	" Referenced by job_start() and s:open_webpage_buffer()
 	let s:tempname = tempname() . '.html'
 	"--
-
-	" "out_cb" function for "curl {url} -o {s:tempname}"
-	function! s:aggregate_stdout(__, stdout) abort
-		let s:stdout_result .= a:stdout
-	endfunction
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
 	function! s:open_webpage_buffer(__, ___) abort
@@ -104,11 +104,6 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abo
 	" Referenced by job_start() and s:show_webpage_buffer()
 	let s:tempname = tempname() . '.html'
 	"--
-
-	" "out_cb" function for "curl {url} -o {s:tempname}"
-	function! s:aggregate_stdout(__, stdout) abort
-		let s:stdout_result .= a:stdout
-	endfunction
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
 	function! s:show_webpage_buffer(__, ___) abort

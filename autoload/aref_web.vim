@@ -21,8 +21,7 @@ endfunction " }}}
 
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
-" (4th formal argument for timer_start()'s real argument)
-function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords, _) abort " {{{
+function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords, timer) abort " {{{
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
@@ -45,7 +44,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	"--
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! s:open_webpage_buffer(__, ___) abort
+	function! s:open_webpage_buffer(_, __) abort
 		execute 'new' s:buffer_name
 		" Set buffer type of scratch
 		setl noswapfile buftype=nofile filetype=aref_web
@@ -84,8 +83,7 @@ endfunction " }}}
 
 " Like s:open_webpage_buffer_async(), but I don't open new buffer
 " I use "target_aref_web_bufnr" buffer instead of new buffer
-" (4th formal argument for timer_start()'s real argument)
-function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abort " {{{
+function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, timer) abort " {{{
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
@@ -106,7 +104,7 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abo
 	"--
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! s:show_webpage_buffer(__, ___) abort
+	function! s:show_webpage_buffer(_, __) abort
 		let l:current_bufnr = winbufnr('.')
 		execute 'buffer!' s:target_bufnr
 		" Unlock for modifying

@@ -31,30 +31,19 @@ let g:aref_web_source = {
 
 ## Requirements
 
-* Vim build options
+* Vim
+  - Vim8.0 or later
   - +job
 
-* Vim plugins
+* Shell Command
+  - `curl`
+  - CLI browse
+    - `w3m` or
+    - `elinks` or
+    - `links`
+
+* Another Plugin
   - (optional) [open-browser.vim](http://github.com/tyru/open-browser.vim) (for :ArefOpenBrowser)
-
-* Commands
-  - curl
-  - cui browse
-    - w3m or
-    - elinks or
-    - links
-
-
-## TODO
-
-- Redo search cursor word on enter key pressed
-
-
-## I Wish !!
-
-- Pull request for English document
-- Fix my poor English anywhere
-- (and other PRs)
 
 
 ## Thanks

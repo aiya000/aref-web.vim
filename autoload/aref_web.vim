@@ -27,7 +27,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	" Represent starting current job progress
 	let s:another_job_progresssive = v:true
 
-	"-- These s: scope variables will be unlet by ArefWebOpenBuffer()
+	"-- These s: scope variables will be unlet by s:open_webpage_buffer()
 	" Binding to s: scope
 	let s:buffer_name = a:buffer_name
 	let s:request_url = a:request_url
@@ -35,7 +35,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	let s:search_keywords = join(a:search_keywords)
 	" job_start()'s result
 	let s:stdout_result = ''
-	" Referenced by job_start() and ArefWebOpenBuffer()
+	" Referenced by job_start() and s:open_webpage_buffer()
 	let s:tempname = tempname() . '.html'
 	"--
 
@@ -45,7 +45,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	endfunction
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! ArefWebOpenBuffer(__, ___) abort
+	function! s:open_webpage_buffer(__, ___) abort
 		execute 'new' s:buffer_name
 		" Set buffer type of scratch
 		setl noswapfile buftype=nofile filetype=aref_web
@@ -74,13 +74,11 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 		let s:another_job_progresssive = v:false
 	endfunction
 
-	"NOTE:
-	" Why "exit_cb" don't use funcref ?
 	" It's derived vim spec
 	let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
 	call job_start(l:command, {
 	\	'out_cb'  : function('s:aggregate_stdout'),
-	\	'exit_cb' : 'ArefWebOpenBuffer'
+	\	'exit_cb' : function('s:open_webpage_buffer')
 	\})
 endfunction " }}}
 
@@ -97,13 +95,13 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abo
 	" Represent starting current job progress
 	let s:another_job_progresssive = v:true
 
-	"-- These s: scope variables will be unlet by ArefWebShowBuffer()
+	"-- These s: scope variables will be unlet by s:show_webpage_buffer()
 	" Binding to s: scope
 	let s:target_bufnr = a:target_aref_web_bufnr
 	let s:request_url  = a:request_url
 	" job_start()'s result
 	let s:stdout_result = ''
-	" Referenced by job_start() and ArefWebShowBuffer()
+	" Referenced by job_start() and s:show_webpage_buffer()
 	let s:tempname = tempname() . '.html'
 	"--
 
@@ -113,7 +111,7 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abo
 	endfunction
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! ArefWebShowBuffer(__, ___) abort
+	function! s:show_webpage_buffer(__, ___) abort
 		let l:current_bufnr = winbufnr('.')
 		execute 'buffer!' s:target_bufnr
 		" Unlock for modifying
@@ -136,13 +134,11 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, _) abo
 		let s:another_job_progresssive = v:false
 	endfunction
 
-	"NOTE:
-	" Why "exit_cb" don't use funcref ?
 	" It's derived vim spec
 	let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
 	call job_start(l:command, {
 	\	'out_cb'  : function('s:aggregate_stdout'),
-	\	'exit_cb' : 'ArefWebShowBuffer'
+	\	'exit_cb' : function('s:show_webpage_buffer')
 	\})
 endfunction " }}}
 

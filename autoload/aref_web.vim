@@ -46,7 +46,9 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	function! s:open_webpage_buffer(_, __) abort
 		execute 'new' s:buffer_name
 		" Set buffer type of scratch
-		setl noswapfile buftype=nofile filetype=aref_web modifiable noreadonly
+		setl noswapfile buftype=nofile filetype=aref_web
+		" Unlock extended lock
+		setl modifiable noreadonly
 		"----------"
 		" Show html page detail
 		let l:dump_cmd = printf(g:aref_web_dump_cmd, s:tempname)
@@ -66,7 +68,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 		highlight default link arefWebKeyword Special
 		"----------"
 		unlet s:buffer_name s:request_url s:search_keywords s:stdout_result s:tempname
-		setl nomodifiable readonly
+		setl nomodifiable
 		wincmd p
 		" Represent current job termination
 		let s:another_job_progresssive = v:false

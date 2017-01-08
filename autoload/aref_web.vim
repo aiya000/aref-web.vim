@@ -15,13 +15,15 @@ let s:another_job_progresssive = v:false
 " subroutine functions
 
 " Aggregate async stdout result to s:stdout_result
-function! s:aggregate_stdout(_, stdout) abort " {{{
-	let s:stdout_result .= a:stdout
+function! s:aggregate_stdout(_, data, __) abort " {{{
+	let s:stdout_result .= a:data
 endfunction " }}}
 
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
 function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords, timer) abort " {{{
+	let l:Job = aref_web#vital_load#get('System.Job')
+
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
@@ -42,8 +44,8 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	let s:tempname = tempname() . '.html'
 	"--
 
-	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! s:open_webpage_buffer(_, __) abort
+	" "on_exit" function for "curl {url} -o {s:tempname}"
+	function! s:open_webpage_buffer(_, __, ___) abort
 		execute 'new' s:buffer_name
 		" Set buffer type of scratch
 		setl noswapfile buftype=nofile filetype=aref_web
@@ -75,16 +77,23 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	endfunction
 
 	" It's derived vim spec
-	let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
-	call job_start(l:command, {
-	\	'out_cb'  : function('s:aggregate_stdout'),
-	\	'exit_cb' : function('s:open_webpage_buffer')
+	"FIXME: Branch in Job.vim
+	if has('nvim')
+		let l:command = printf('curl "%s" -o %s', a:request_url, s:tempname)
+	else
+		let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
+	endif
+	call l:Job.start(l:command, {
+	\	'on_stdout' : function('s:aggregate_stdout'),
+	\	'on_exit'   : function('s:open_webpage_buffer')
 	\})
 endfunction " }}}
 
 " Like s:open_webpage_buffer_async(), but I don't open new buffer
 " I use "target_aref_web_bufnr" buffer instead of new buffer
 function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, timer) abort " {{{
+	let l:Job = aref_web#vital_load#get('System.Job')
+
 	" Progress only one job
 	if s:another_job_progresssive
 		" Recurse by timer
@@ -105,7 +114,7 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, timer)
 	"--
 
 	" "exit_cb" function for "curl {url} -o {s:tempname}"
-	function! s:show_webpage_buffer(_, __) abort
+	function! s:show_webpage_buffer(_, __, ___) abort
 		let l:current_bufnr = winbufnr('.')
 		execute 'buffer!' s:target_bufnr
 		" Unlock for modifying
@@ -131,8 +140,8 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, timer)
 	" It's derived vim spec
 	let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
 	call job_start(l:command, {
-	\	'out_cb'  : function('s:aggregate_stdout'),
-	\	'exit_cb' : function('s:show_webpage_buffer')
+	\	'on_stdout' : function('s:aggregate_stdout'),
+	\	'on_exit'   : function('s:show_webpage_buffer')
 	\})
 endfunction " }}}
 

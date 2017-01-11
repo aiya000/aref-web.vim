@@ -38,13 +38,13 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	let s:buffer_name     = a:buffer_name
 	let s:request_url     = a:request_url
 	let s:search_keywords = join(a:search_keywords)
-	" job_start()'s result
+	" Job.start()'s result
 	let s:stdout_result = ''
-	" Referenced by job_start() and s:open_webpage_buffer()
+	" Be referenced by Job.start() and s:open_webpage_buffer()
 	let s:tempname = tempname() . '.html'
 	"--
 
-	" "on_exit" function for "curl {url} -o {s:tempname}"
+	" The "on_exit" function for "curl {url} -o {s:tempname}"
 	function! s:open_webpage_buffer(_, __, ___) abort
 		execute 'new' s:buffer_name
 		" Set buffer type of scratch
@@ -77,7 +77,7 @@ function! s:open_webpage_buffer_async(buffer_name, request_url, search_keywords,
 	endfunction
 
 	" It's derived vim spec
-	"FIXME: Branch in Job.vim
+	"FIXME: Branch into Job.vim
 	if has('nvim')
 		let l:command = printf('curl "%s" -o %s', a:request_url, s:tempname)
 	else
@@ -107,13 +107,13 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, timer)
 	" Binding to s: scope
 	let s:target_bufnr = a:target_aref_web_bufnr
 	let s:request_url  = a:request_url
-	" job_start()'s result
+	" Job.start()'s result
 	let s:stdout_result = ''
-	" Referenced by job_start() and s:show_webpage_buffer()
+	" Be referenced by Job.start() and s:show_webpage_buffer()
 	let s:tempname = tempname() . '.html'
 	"--
 
-	" "exit_cb" function for "curl {url} -o {s:tempname}"
+	" The "on_exit" function for "curl {url} -o {s:tempname}"
 	function! s:show_webpage_buffer(_, __, ___) abort
 		let l:current_bufnr = winbufnr('.')
 		execute 'buffer!' s:target_bufnr
@@ -138,8 +138,13 @@ function! s:show_webpage_buffer_async(target_aref_web_bufnr, request_url, timer)
 	endfunction
 
 	" It's derived vim spec
-	let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
-	call job_start(l:command, {
+	"FIXME: Branch into Job.vim
+	if has('nvim')
+		let l:command = printf('curl "%s" -o %s', a:request_url, s:tempname)
+	else
+		let l:command = printf('curl %s -o %s', a:request_url, s:tempname)
+	endif
+	call Job.start(l:command, {
 	\	'on_stdout' : function('s:aggregate_stdout'),
 	\	'on_exit'   : function('s:show_webpage_buffer')
 	\})

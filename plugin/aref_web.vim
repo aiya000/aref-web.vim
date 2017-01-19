@@ -29,8 +29,11 @@ let g:aref_web_dump_cmd = get(g:, 'aref_web_dump_cmd',
 \	: executable('links')  ? 'links -dump %s'
 \	: '')
 
-" If this value is v:true, Set defined keymappings automatically.
+" Set define default keymaps automatically if this value is v:true
 let g:aref_web_enable_default_keymappings = get(g:, 'aref_web_enable_default_keymappings', v:true)
+
+" Set open the buffer to left when new buffer is opend If this value is v:true
+let g:aref_web_split_vertically = get(g:, 'aref_web_split_vertically', v:false)
 
 
 "-------------------"

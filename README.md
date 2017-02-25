@@ -31,16 +31,16 @@ let g:aref_web_source = {
 
 ## Requirements
 
-* Vim
-  - Vim8.0 or later
-  - +job
+* Vim or NeoVim
+    * Vim
+        - 8.0 or later
+        - +job
+    * NeoVim
+        - 0.1.7 or later
 
-* Shell Command
-  - `curl`
-  - CLI browse
-    - `w3m` or
-    - `elinks` or
-    - `links`
+* CLI Command
+    - `curl`
+    - `w3m` or `elinks` or `links`
 
 * Another Plugin
   - (optional) [open-browser.vim](http://github.com/tyru/open-browser.vim) (for :ArefOpenBrowser)

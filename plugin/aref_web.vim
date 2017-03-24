@@ -40,10 +40,10 @@ let g:aref_web_split_vertically = get(g:, 'aref_web_split_vertically', v:false)
 " Commands
 
 " Open webpage buffer async
-command! -bar -nargs=+ Aref call aref_web#open_webpage(<f-args>)
+command! -bar -nargs=+ -complete=customlist,aref_web#complete Aref call aref_web#open_webpage(<f-args>)
 
 " Open browser by open-browser.vim
-command! -bar ArefOpenBrowser call aref_web#open_browser()
+command! -bar -complete=customlist,aref_web#complete ArefOpenBrowser call aref_web#open_browser()
 
 
 "-------------------"

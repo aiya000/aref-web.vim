@@ -286,3 +286,9 @@ function! aref_web#show_prev_page() abort
 	let l:shower_scope  = s:SHOWER_SCOPE.new(b:aref_web_scope, l:prevpage_url, l:working_bufnr)
 	call s:show_webpage_buffer_async(l:shower_scope, v:null)
 endfunction
+
+
+" Completion
+function! aref_web#complete(_, __, ___) abort
+	return keys(g:aref_web_source)
+endfunction

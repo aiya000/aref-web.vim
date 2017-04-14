@@ -117,26 +117,10 @@ function! s:open_webpage_buffer_async(opener_scope, timer) abort " {{{
 	else
 		let l:command = printf('curl %s -o %s', a:opener_scope.request_url, a:opener_scope.curl_tempname)
 	endif
-	if has('nvim')
-		"TODO: Remvoe this branch when neovim's partial is stabilized
-		"    : The job safety was broken by s:
-		let s:opener_scope = a:opener_scope
-		function! s:job_stdout_aggregate_to_closure(x, y, z) dict abort
-			call s:job_stdout_aggregate_to(s:opener_scope, a:x, a:y, a:z)
-		endfunction
-		function! s:open_webpage_buffer_closure(x, y, z) dict abort
-			call s:open_webpage_buffer(s:opener_scope, a:x, a:y, a:z)
-		endfunction
-		call l:Job.start(l:command, {
-		\	'on_stdout' : function('s:job_stdout_aggregate_to_closure'),
-		\	'on_exit'   : function('s:open_webpage_buffer_closure')
-		\})
-	else
-		call l:Job.start(l:command, {
-		\	'on_stdout' : function('s:job_stdout_aggregate_to', [a:opener_scope]),
-		\	'on_exit'   : function('s:open_webpage_buffer', [a:opener_scope])
-		\})
-	endif
+	call l:Job.start(l:command, {
+	\	'on_stdout' : function('s:job_stdout_aggregate_to', [a:opener_scope]),
+	\	'on_exit'   : function('s:open_webpage_buffer', [a:opener_scope])
+	\})
 endfunction " }}}
 
 " Like s:open_webpage_buffer_async(), but I don't open new buffer
@@ -182,26 +166,10 @@ function! s:show_webpage_buffer_async(shower_scope, timer) abort " {{{
 	else
 		let l:command = printf('curl %s -o %s', a:shower_scope.request_url, a:shower_scope.curl_tempname)
 	endif
-	if has('nvim')
-		"TODO: Remvoe this branch when neovim's partial is stabilized
-		"    : The job safety was broken by s:
-		let s:shower_scope = a:shower_scope
-		function! s:job_stdout_aggregate_to_closure(x, y, z) dict abort
-			call s:job_stdout_aggregate_to(s:shower_scope, a:x, a:y, a:z)
-		endfunction
-		function! s:show_webpage_buffer_closure(x, y, z) dict abort
-			call s:show_webpage_buffer(s:shower_scope, a:x, a:y, a:z)
-		endfunction
-		call l:Job.start(l:command, {
-		\	'on_stdout' : function('s:job_stdout_aggregate_to_closure'),
-		\	'on_exit'   : function('s:show_webpage_buffer_closure')
-		\})
-	else
-		call l:Job.start(l:command, {
-		\	'on_stdout' : function('s:job_stdout_aggregate_to', [a:shower_scope]),
-		\	'on_exit'   : function('s:show_webpage_buffer', [a:shower_scope])
-		\})
-	endif
+	call l:Job.start(l:command, {
+	\	'on_stdout' : function('s:job_stdout_aggregate_to', [a:shower_scope]),
+	\	'on_exit'   : function('s:show_webpage_buffer', [a:shower_scope])
+	\})
 endfunction " }}}
 
 

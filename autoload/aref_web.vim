@@ -24,16 +24,15 @@ let s:OPENER_SCOPE = {}
 "     and this is unique in the OPENER_SCOPE instances.
 " `job_stdout_result` is created from `instance.job_stdout_aggregator()` only
 function! s:OPENER_SCOPE.new(buffer_name, request_url, search_keywords) dict abort
-	"NOTE: Is The l:search_keywords handling appropriate?
-	let l:new_instance = {
-	\	'buffer_name'       : a:buffer_name,
-	\	'request_url'       : a:request_url,
-	\	'search_keyword'    : join(a:search_keywords),
-	\	'curl_tempname'     : tempname() . '.html',
-	\	'job_stdout_result' : '!!! undefined !!!'
-	\}
-
-	return l:new_instance
+    "NOTE: Is The l:search_keywords handling appropriate?
+    let l:new_instance = {
+        \ 'buffer_name'       : a:buffer_name,
+        \ 'request_url'       : a:request_url,
+        \ 'search_keyword'    : join(a:search_keywords),
+        \ 'curl_tempname'     : tempname() . '.html',
+        \ 'job_stdout_result' : '!!! undefined !!!'
+    \ }
+    return l:new_instance
 endfunction
 
 lockvar! s:OPENER_SCOPE
@@ -41,7 +40,7 @@ lockvar! s:OPENER_SCOPE
 " Aggregate the stdout result to a:aref_web_scope.job_stdout_result asynchronously.
 " Be used with the partial applying
 function! s:job_stdout_aggregate_to(aref_web_scope, _, data, __) abort
-	let a:aref_web_scope.job_stdout_result .= a:data
+    let a:aref_web_scope.job_stdout_result .= a:data
 endfunction
 
 
@@ -50,11 +49,11 @@ endfunction
 let s:SHOWER_SCOPE = copy(s:OPENER_SCOPE)
 
 function! s:SHOWER_SCOPE.new(opener_scope, new_request_url, working_bufnr) dict abort
-	" Overwrite .request_url
-	return extend(a:opener_scope, {
-	\	'request_url'   : a:new_request_url,
-	\	'working_bufnr' : a:working_bufnr
-	\})
+    " Overwrite .request_url
+    return extend(a:opener_scope, {
+        \ 'request_url'   : a:new_request_url,
+        \ 'working_bufnr' : a:working_bufnr
+    \ })
 endfunction
 
 lockvar! s:SHOWER_SCOPE
@@ -66,110 +65,110 @@ lockvar! s:SHOWER_SCOPE
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
 function! s:open_webpage_buffer_async(opener_scope, timer) abort " {{{
-	let l:Job = aref_web#vital_load#get('System.Job')
+    let l:Job = aref_web#vital_load#get('System.Job')
 
-	" Progress only one job
-	if s:another_job_progresssive
-		"NOTE: Neovim doesn't support the partial applying now
-		call timer_start(3000, function('s:open_webpage_buffer_async', [a:opener_scope]))
-		return
-	endif
-	" Represent starting current job progress
-	let s:another_job_progresssive = v:true
-	" Initialize Job.start()'s result
-	let s:stdout_result = ''
+    " Progress only one job
+    if s:another_job_progresssive
+        "NOTE: Neovim doesn't support the partial applying now
+        call timer_start(3000, function('s:open_webpage_buffer_async', [a:opener_scope]))
+        return
+    endif
+    " Represent starting current job progress
+    let s:another_job_progresssive = v:true
+    " Initialize Job.start()'s result
+    let s:stdout_result = ''
 
-	" The "on_exit" function for "curl {url} -o {s:tempname}"
-	function! s:open_webpage_buffer(opener_scope, _, __, ___) abort
-		let l:open_method = g:aref_web_split_vertically ? 'vnew' : 'new'
-		execute l:open_method fnameescape(a:opener_scope.buffer_name)
-		" Set buffer type of scratch
-		setl noswapfile buftype=nofile filetype=aref_web
-		" Unlock extended lock
-		setl modifiable noreadonly
-		"----------"
-		" Show html page detail
-		let l:dump_cmd = printf(g:aref_web_dump_cmd, a:opener_scope.curl_tempname)
-		1put!=system(l:dump_cmd)
-		execute 'normal! G"_ddgg'
+    " The "on_exit" function for "curl {url} -o {s:tempname}"
+    function! s:open_webpage_buffer(opener_scope, _, __, ___) abort
+        let l:open_method = g:aref_web_split_vertically ? 'vnew' : 'new'
+        execute l:open_method (a:opener_scope.buffer_name)
+        " Set buffer type of scratch
+        setl noswapfile buftype=nofile filetype=aref_web
+        " Unlock extended lock
+        setl modifiable noreadonly
+        "----------"
+        " Show html page detail
+        let l:dump_cmd = printf(g:aref_web_dump_cmd, a:opener_scope.curl_tempname)
+        1put!=system(l:dump_cmd)
+        execute 'normal! G"_ddgg'
 
-		" Save the scope for aref_web#show_{next,prev}_page() and aref_web#open_browser()
-		let b:aref_web_scope = a:opener_scope
+        " Save the scope for aref_web#show_{next,prev}_page() and aref_web#open_browser()
+        let b:aref_web_scope = a:opener_scope
 
-		" Mapping default keymappings
-		if g:aref_web_enable_default_keymappings
-			call aref_web#stateful#map_default_keys()
-		endif
+        " Mapping default keymappings
+        if g:aref_web_enable_default_keymappings
+            call aref_web#stateful#map_default_keys()
+        endif
 
-		" Highlight searched keyword
-		execute printf('syntax match arefWebKeyword "%s"', a:opener_scope.search_keyword)
-		highlight default link arefWebKeyword Special
-		"----------"
-		setl nomodifiable
-		wincmd p
-		" Represent current job termination
-		let s:another_job_progresssive = v:false
-	endfunction
+        " Highlight searched keyword
+        execute printf('syntax match arefWebKeyword "%s"', a:opener_scope.search_keyword)
+        highlight default link arefWebKeyword Special
+        "----------"
+        setl nomodifiable
+        wincmd p
+        " Represent current job termination
+        let s:another_job_progresssive = v:false
+    endfunction
 
-	"FIXME: Branch into Job.vim
-	if has('nvim')
-		let l:command = printf('curl "%s" -o %s', a:opener_scope.request_url, a:opener_scope.curl_tempname)
-	else
-		let l:command = printf('curl %s -o %s', a:opener_scope.request_url, a:opener_scope.curl_tempname)
-	endif
-	call l:Job.start(l:command, {
-	\	'on_stdout' : function('s:job_stdout_aggregate_to', [a:opener_scope]),
-	\	'on_exit'   : function('s:open_webpage_buffer', [a:opener_scope])
-	\})
+    "FIXME: Branch into Job.vim
+    if has('nvim')
+        let l:command = printf('curl "%s" -o %s', a:opener_scope.request_url, a:opener_scope.curl_tempname)
+    else
+        let l:command = printf('curl %s -o %s', a:opener_scope.request_url, a:opener_scope.curl_tempname)
+    endif
+    call l:Job.start(l:command, {
+        \ 'on_stdout' : function('s:job_stdout_aggregate_to', [a:opener_scope]),
+        \ 'on_exit'   : function('s:open_webpage_buffer', [a:opener_scope])
+    \ })
 endfunction " }}}
 
 " Like s:open_webpage_buffer_async(), but I don't open new buffer
 " I use "working_aref_web_bufnr" buffer instead of new buffer
 function! s:show_webpage_buffer_async(shower_scope, timer) abort " {{{
-	let l:Job = aref_web#vital_load#get('System.Job')
+    let l:Job = aref_web#vital_load#get('System.Job')
 
-	" Progress only one job
-	if s:another_job_progresssive
-		"NOTE: Neovim doesn't support the partial applying now
-		call timer_start(3000, function('s:show_webpage_buffer_async', [a:shower_scope]))
-		return
-	endif
-	" Represent starting current job progress
-	let s:another_job_progresssive = v:true
+    " Progress only one job
+    if s:another_job_progresssive
+        "NOTE: Neovim doesn't support the partial applying now
+        call timer_start(3000, function('s:show_webpage_buffer_async', [a:shower_scope]))
+        return
+    endif
+    " Represent starting current job progress
+    let s:another_job_progresssive = v:true
 
-	" The "on_exit" function for "curl {url} -o {s:tempname}"
-	function! s:show_webpage_buffer(shower_scope, _, __, ___) abort
-		let l:current_bufnr = winbufnr('.')
-		execute 'buffer!' a:shower_scope.working_bufnr
-		" Unlock for modifying
-		setl modifiable
-		"----------"
-		" Show html page detail
-		let l:dump_cmd = printf(g:aref_web_dump_cmd, a:shower_scope.curl_tempname)
-		execute 'normal! gg"_dG'
-		1put!=system(l:dump_cmd)
-		execute 'normal! G"_ddgg'
+    " The "on_exit" function for "curl {url} -o {s:tempname}"
+    function! s:show_webpage_buffer(shower_scope, _, __, ___) abort
+        let l:current_bufnr = winbufnr('.')
+        execute 'buffer!' a:shower_scope.working_bufnr
+        " Unlock for modifying
+        setl modifiable
+        "----------"
+        " Show html page detail
+        let l:dump_cmd = printf(g:aref_web_dump_cmd, a:shower_scope.curl_tempname)
+        execute 'normal! gg"_dG'
+        1put!=system(l:dump_cmd)
+        execute 'normal! G"_ddgg'
 
-		" Save the scope for aref_web#show_{next,prev}_page() and aref_web#open_browser()
-		let b:aref_web_scope = a:shower_scope
+        " Save the scope for aref_web#show_{next,prev}_page() and aref_web#open_browser()
+        let b:aref_web_scope = a:shower_scope
 
-		"----------"
-		setl nomodifiable
-		execute 'buffer' l:current_bufnr
-		" Represent current job termination
-		let s:another_job_progresssive = v:false
-	endfunction
+        "----------"
+        setl nomodifiable
+        execute 'buffer' l:current_bufnr
+        " Represent current job termination
+        let s:another_job_progresssive = v:false
+    endfunction
 
-	"FIXME: Branch into Job.vim
-	if has('nvim')
-		let l:command = printf('curl "%s" -o %s', a:shower_scope.request_url, a:shower_scope.curl_tempname)
-	else
-		let l:command = printf('curl %s -o %s', a:shower_scope.request_url, a:shower_scope.curl_tempname)
-	endif
-	call l:Job.start(l:command, {
-	\	'on_stdout' : function('s:job_stdout_aggregate_to', [a:shower_scope]),
-	\	'on_exit'   : function('s:show_webpage_buffer', [a:shower_scope])
-	\})
+    "FIXME: Branch into Job.vim
+    if has('nvim')
+        let l:command = printf('curl "%s" -o %s', a:shower_scope.request_url, a:shower_scope.curl_tempname)
+    else
+        let l:command = printf('curl %s -o %s', a:shower_scope.request_url, a:shower_scope.curl_tempname)
+    endif
+    call l:Job.start(l:command, {
+        \ 'on_stdout' : function('s:job_stdout_aggregate_to', [a:shower_scope]),
+        \ 'on_exit'   : function('s:show_webpage_buffer', [a:shower_scope])
+    \ })
 endfunction " }}}
 
 
@@ -178,85 +177,85 @@ endfunction " }}}
 
 " Open webpage buffer async
 function! aref_web#open_webpage(...) abort
-	let l:M = aref_web#vital_load#get('Vim.Message')
+    let l:M = aref_web#vital_load#get('Vim.Message')
 
-	let l:source_name = a:1
-	if !aref_web#stateful#is_supported_source(l:source_name)
-		call l:M.error(l:source_name . ' is not supported.')
-		call l:M.error('Please verify g:loaded_aref_web')
-		return
-	endif
-	if !aref_web#stateful#can_use_dump_cmd()
-		call l:M.error('Sorry. aref_web.vim needs w3m, lynx, elinks or links browser.')
-		call l:M.error('Please add it to your $PATH')
-		return
-	endif
-	let l:search_keywords = a:000[1:]
-	let l:request_url     = aref_web#stateful#get_target_url(l:source_name, l:search_keywords)
-	let l:buffer_name     = aref_web#stateless#get_buffer_name(l:source_name, l:search_keywords)
+    let l:source_name = a:1
+    if !aref_web#stateful#is_supported_source(l:source_name)
+        call l:M.error(l:source_name . ' is not supported.')
+        call l:M.error('Please verify g:loaded_aref_web')
+        return
+    endif
+    if !aref_web#stateful#can_use_dump_cmd()
+        call l:M.error('Sorry. aref_web.vim needs w3m, lynx, elinks or links browser.')
+        call l:M.error('Please add it to your $PATH')
+        return
+    endif
+    let l:search_keywords = a:000[1:]
+    let l:request_url     = aref_web#stateful#get_target_url(l:source_name, l:search_keywords)
+    let l:buffer_name     = aref_web#stateless#get_buffer_name(l:source_name, l:search_keywords)
 
-	let l:opener_scope = s:OPENER_SCOPE.new(l:buffer_name, l:request_url, l:search_keywords)
-	call s:open_webpage_buffer_async(l:opener_scope, v:null)
+    let l:opener_scope = s:OPENER_SCOPE.new(l:buffer_name, l:request_url, l:search_keywords)
+    call s:open_webpage_buffer_async(l:opener_scope, v:null)
 endfunction
 
 
 " Open current url by open-browser.vim in filetype=aref_web buffer
 function! aref_web#open_browser() abort
-	let l:M = aref_web#vital_load#get('Vim.Message')
+    let l:M = aref_web#vital_load#get('Vim.Message')
 
-	if !aref_web#stateful#have_openbrowser_vim()
-		call l:M.error('calling open-browser.vim failed')
-		call l:M.error('Please install and load open-browser.vim')
-		return
-	endif
-	if &filetype !=# 'aref_web'
-		call l:M.error('Invalid call situation')
-		call l:M.error('Please call from filetype=aref_web buffer')
-		return
-	endif
-	call openbrowser#open(b:aref_web_scope.request_url)
+    if !aref_web#stateful#have_openbrowser_vim()
+        call l:M.error('calling open-browser.vim failed')
+        call l:M.error('Please install and load open-browser.vim')
+        return
+    endif
+    if &filetype !=# 'aref_web'
+        call l:M.error('Invalid call situation')
+        call l:M.error('Please call from filetype=aref_web buffer')
+        return
+    endif
+    call openbrowser#open(b:aref_web_scope.request_url)
 endfunction
 
 
 " Show next page
 function! aref_web#show_next_page() abort
-	let l:M = aref_web#vital_load#get('Vim.Message')
-	let l:O = aref_web#vital_load#get('Data.Optional')
+    let l:M = aref_web#vital_load#get('Vim.Message')
+    let l:O = aref_web#vital_load#get('Data.Optional')
 
-	let l:maybe_nextpage_url = aref_web#stateless#get_next_page_url(b:aref_web_scope.request_url)
-	if l:O.empty(l:maybe_nextpage_url)
-		call l:M.error("Sorry, this site url doesn't support page moving")
-		return
-	endif
+    let l:maybe_nextpage_url = aref_web#stateless#get_next_page_url(b:aref_web_scope.request_url)
+    if l:O.empty(l:maybe_nextpage_url)
+        call l:M.error("Sorry, this site url doesn't support page moving")
+        return
+    endif
 
-	echo 'aref_web> go to next page'
-	let l:nextpage_url  = l:O.get_unsafe(l:maybe_nextpage_url)
-	let l:working_bufnr = winbufnr('.')
-	let l:shower_scope  = s:SHOWER_SCOPE.new(b:aref_web_scope, l:nextpage_url, l:working_bufnr)
-	call s:show_webpage_buffer_async(l:shower_scope, v:null)
+    echo 'aref_web> go to next page'
+    let l:nextpage_url  = l:O.get_unsafe(l:maybe_nextpage_url)
+    let l:working_bufnr = winbufnr('.')
+    let l:shower_scope  = s:SHOWER_SCOPE.new(b:aref_web_scope, l:nextpage_url, l:working_bufnr)
+    call s:show_webpage_buffer_async(l:shower_scope, v:null)
 endfunction
 
 
 " Show previous page
 function! aref_web#show_prev_page() abort
-	let l:M = aref_web#vital_load#get('Vim.Message')
-	let l:O = aref_web#vital_load#get('Data.Optional')
+    let l:M = aref_web#vital_load#get('Vim.Message')
+    let l:O = aref_web#vital_load#get('Data.Optional')
 
-	let l:maybe_prevpage_url = aref_web#stateless#get_prev_page_url(b:aref_web_scope.request_url)
-	if l:O.empty(l:maybe_prevpage_url)
-		call l:M.error("Sorry, this site url doesn't support page moving")
-		return
-	endif
+    let l:maybe_prevpage_url = aref_web#stateless#get_prev_page_url(b:aref_web_scope.request_url)
+    if l:O.empty(l:maybe_prevpage_url)
+        call l:M.error("Sorry, this site url doesn't support page moving")
+        return
+    endif
 
-	echo 'aref_web> go to previous page'
-	let l:prevpage_url  = l:O.get_unsafe(l:maybe_prevpage_url)
-	let l:working_bufnr = winbufnr('.')
-	let l:shower_scope  = s:SHOWER_SCOPE.new(b:aref_web_scope, l:prevpage_url, l:working_bufnr)
-	call s:show_webpage_buffer_async(l:shower_scope, v:null)
+    echo 'aref_web> go to previous page'
+    let l:prevpage_url  = l:O.get_unsafe(l:maybe_prevpage_url)
+    let l:working_bufnr = winbufnr('.')
+    let l:shower_scope  = s:SHOWER_SCOPE.new(b:aref_web_scope, l:prevpage_url, l:working_bufnr)
+    call s:show_webpage_buffer_async(l:shower_scope, v:null)
 endfunction
 
 
 " Completion
 function! aref_web#complete(_, __, ___) abort
-	return keys(g:aref_web_source)
+    return keys(g:aref_web_source)
 endfunction

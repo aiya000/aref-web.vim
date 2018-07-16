@@ -28,8 +28,8 @@ endfunction " }}}
 " If keys(g:aref_web_source) contains a:source_name, return true.
 " otherwise return false.
 function! aref_web#stateful#is_supported_source(source_name) abort " {{{
-    let l:supported_sources = keys(g:aref_web_source)
-    return s:List.has(l:supported_sources, a:source_name)
+    let supported_sources = keys(g:aref_web_source)
+    return s:List.has(supported_sources, a:source_name)
 endfunction " }}}
 
 " If you have some CLI web browser, return true.
@@ -40,7 +40,7 @@ endfunction " }}}
 
 " Create special url for source_name with param_list
 function! aref_web#stateful#get_target_url(source_name, param_list) abort " {{{
-    let l:params        = map(a:param_list, 's:HTTP.encodeURI(v:val)')
-    let l:request_query = join(l:params, '+')
-    return printf(g:aref_web_source[a:source_name].url, l:request_query)
+    let params        = map(a:param_list, 's:HTTP.encodeURI(v:val)')
+    let request_query = join(params, '+')
+    return printf(g:aref_web_source[a:source_name].url, request_query)
 endfunction " }}}

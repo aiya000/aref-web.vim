@@ -19,9 +19,9 @@ endfunction " }}}
 "Example: echo aref_web#stateless#get_buffer_name('stackage', ['Int', '->', 'Int'])
 "  ==> '[aref-web: stackage Int -> Int]'
 function! aref_web#stateless#get_buffer_name(source_name, params) abort " {{{
-    let l:base = '[aref-web: %s]'
-    let l:body = a:source_name . ' ' . join(a:params)
-    return printf(l:base, l:body)
+    let base = '[aref-web: %s]'
+    let body = a:source_name . ' ' . join(a:params)
+    return printf(base, body)
 endfunction " }}}
 
 " Check url format.
@@ -34,9 +34,9 @@ function! aref_web#stateless#url_has_page_num(url) abort " {{{
     endif
 
     " Does the url parameters contain some num ?
-    let [_, l:params] = split(a:url, '?')
-    let l:result      = match(l:params, '=\d') isnot -1
-    return s:bool(l:result)
+    let [_, params] = split(a:url, '?')
+    let result      = match(params, '=\d') isnot -1
+    return s:bool(result)
 endfunction " }}}
 
 " If url has page num, return next page url.
@@ -45,9 +45,9 @@ function! aref_web#stateless#get_next_page_url(current_url) abort " {{{
     if !aref_web#stateless#url_has_page_num(a:current_url)
         return s:Option.none()
     endif
-    let l:page_num     = matchstr(a:current_url, '=\zs\d\+\ze')
-    let l:nextpage_url = s:String.substitute_last(a:current_url, '=\zs\d\+\ze', l:page_num + 1)
-    return s:Option.some(l:nextpage_url)
+    let page_num     = matchstr(a:current_url, '=\zs\d\+\ze')
+    let nextpage_url = s:String.substitute_last(a:current_url, '=\zs\d\+\ze', page_num + 1)
+    return s:Option.some(nextpage_url)
 endfunction " }}}
 
 " If url has page num, return previous page url.
@@ -56,7 +56,7 @@ function! aref_web#stateless#get_prev_page_url(current_url) abort " {{{
     if !aref_web#stateless#url_has_page_num(a:current_url)
         return s:Option.none()
     endif
-    let l:page_num     = matchstr(a:current_url, '=\zs\d\+\ze')
-    let l:prevpage_url = s:String.substitute_last(a:current_url, '=\zs\d\+\ze', l:page_num - 1)
-    return s:Option.some(l:prevpage_url)
+    let page_num     = matchstr(a:current_url, '=\zs\d\+\ze')
+    let prevpage_url = s:String.substitute_last(a:current_url, '=\zs\d\+\ze', page_num - 1)
+    return s:Option.some(prevpage_url)
 endfunction " }}}

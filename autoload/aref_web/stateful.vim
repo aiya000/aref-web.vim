@@ -3,10 +3,6 @@ let s:V = vital#aref_web#new()
 let s:HTTP = s:V.import('Web.HTTP')
 let s:List = s:V.import('Data.List')
 
-"
-" Helper static functions, functions has the state
-"
-
 " If you have open-browser.vim, return v:true.
 " otherwise return v:false.
 function! aref_web#stateful#have_openbrowser_vim() abort " {{{

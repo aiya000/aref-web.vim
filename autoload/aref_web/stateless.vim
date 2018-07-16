@@ -3,18 +3,10 @@ let s:V = vital#aref_web#new()
 let s:Option = s:V.import('Data.Optional')
 let s:String = s:V.import('Data.String')
 
-"
-" Stateless helper functions
-"
-
-"---
-
-" Convert numeric_boolean to boolean
+" Convert 0 to false, others to true
 function! s:bool(num) abort " {{{
     return (a:num is 0) ? v:false : v:true
 endfunction " }}}
-
-"---
 
 "Example: echo aref_web#stateless#get_buffer_name('stackage', ['Int', '->', 'Int'])
 "  ==> '[aref-web: stackage Int -> Int]'

@@ -84,8 +84,7 @@ function! s:open_webpage_buffer_async(opener_scope, timer) abort " {{{
 
     " The "on_exit" function for "curl {url} -o {s:tempname}"
     function! s:open_webpage_buffer(opener_scope, _, __, ___) abort
-        let open = g:aref_web_split_vertically ? 'vnew' : 'new'
-        execute open a:opener_scope.buffer_name
+        execute g:aref_web_buffer_opening a:opener_scope.buffer_name
         " Set buffer type of scratch
         setl noswapfile buftype=nofile filetype=aref_web
         " Unlock extended lock

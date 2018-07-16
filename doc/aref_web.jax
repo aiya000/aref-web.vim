@@ -130,13 +130,12 @@ g:aref_web_enable_default_keymappings	*g:aref_web_enable_default_keymappings*
 	規定のキーマッピングが自動で実行されます。
 	　v:falseであれば、キーマッピングは自動で実行されません。
 
-g:aref_web_split_vertically			*g:aref_web_split_vertically*
-	This type is boolean .
-	既定値: v:false
+g:aref_web_buffer_opening			*g:aref_web_buffer_opening*
+	This type is string .
+	既定値: "new"
 
-	　この変数値がv:trueであれば、aref_webバッファを開いた際に
-	左側にバッファを開きます。
-	そうでなければ、上側にバッファを開きます。
+	　Webページをバッファで開く際に、どのコマンドで開くかを指定することが
+	できます。
 
 ------------------------------------------------------------------------------
 コマンド					*aref_web-commands*

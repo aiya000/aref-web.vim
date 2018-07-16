@@ -23,17 +23,18 @@ let g:aref_web_source = get(g:, 'aref_web_source', {})
 
 " If this value is empty,
 " Will warn by autoload/aref_web.vim's s:can_use_dump_cmd() and s:echo_error()
-let g:aref_web_dump_cmd = get(g:, 'aref_web_dump_cmd',
-\	  executable('w3m')    ? 'w3m -dump %s'
-\	: executable('elinks') ? 'elinks -dump -no-numbering -no-references %s'
-\	: executable('links')  ? 'links -dump %s'
-\	: '')
+let g:aref_web_dump_cmd =
+    \ get(g:, 'aref_web_dump_cmd'
+        \ , executable('w3m')    ? 'w3m -dump %s'
+        \ : executable('elinks') ? 'elinks -dump -no-numbering -no-references %s'
+        \ : executable('links')  ? 'links -dump %s'
+            \                    : ''
+    \ )
 
 " Set define default keymaps automatically if this value is v:true
 let g:aref_web_enable_default_keymappings = get(g:, 'aref_web_enable_default_keymappings', v:true)
 
-" Set open the buffer to left when new buffer is opend If this value is v:true
-let g:aref_web_split_vertically = get(g:, 'aref_web_split_vertically', v:false)
+let g:aref_web_buffer_opening = get(g:, 'aref_web_buffer_opening', 'new')
 
 
 "-------------------"

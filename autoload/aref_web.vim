@@ -46,7 +46,9 @@ lockvar! s:OPENER_SCOPE
 " Aggregate the stdout result to a:aref_web_scope.job_stdout_result asynchronously.
 " Be used with the partial applying
 function! s:job_stdout_aggregate_to(aref_web_scope, _, data, __) abort
-    let a:aref_web_scope.job_stdout_result .= a:data
+    for line in a:data
+        let a:aref_web_scope.job_stdout_result .= line
+    endfor
 endfunction
 
 

@@ -73,15 +73,14 @@ lockvar! s:SHOWER_SCOPE
 " Load webpage detail of a:request_url async.
 " and Open its buffer async.
 function! s:open_webpage_buffer_async(opener_scope, timer) abort " {{{
-    " Progress only one job
+    " Run only a job
     if s:another_job_progresssive
         "NOTE: Neovim doesn't support the partial applying now
         call timer_start(3000, function('s:open_webpage_buffer_async', [a:opener_scope]))
         return
     endif
-    " Represent starting current job progress
+    " Now, does a job is still running, or not?
     let s:another_job_progresssive = v:true
-    " Initialize Job.start()'s result
     let s:stdout_result = ''
 
     " The "on_exit" function for "curl {url} -o {s:tempname}"
@@ -91,28 +90,29 @@ function! s:open_webpage_buffer_async(opener_scope, timer) abort " {{{
         setl noswapfile buftype=nofile filetype=aref_web
         " Unlock extended lock
         setl modifiable noreadonly
-        "----------"
-        " Show html page detail
-        let dump_cmd = printf(g:aref_web_dump_cmd, a:opener_scope.curl_tempname)
-        1put!=system(dump_cmd)
-        execute 'normal! G"_ddgg'
 
-        " Save the scope for aref_web#show_{next,prev}_page() and aref_web#open_browser()
-        let b:aref_web_scope = a:opener_scope
+        try
+            " Show html page detail
+            let dump_cmd = printf(g:aref_web_dump_cmd, a:opener_scope.curl_tempname)
+            1put!=system(dump_cmd)
+            execute 'normal! G"_ddgg'
 
-        " Mapping default keymappings
-        if g:aref_web_enable_default_keymappings
-            call aref_web#stateful#map_default_keys()
-        endif
+            " Save the scope for aref_web#show_{next,prev}_page() and aref_web#open_browser()
+            let b:aref_web_scope = a:opener_scope
 
-        " Highlight searched keyword
-        execute printf('syntax match arefWebKeyword "%s"', a:opener_scope.search_keyword)
-        highlight default link arefWebKeyword Special
-        "----------"
-        setl nomodifiable
-        wincmd p
-        " Represent current job termination
-        let s:another_job_progresssive = v:false
+            " Mapping default keymappings
+            if g:aref_web_enable_default_keymappings
+                call aref_web#stateful#map_default_keys()
+            endif
+
+            " Highlight searched keyword
+            execute printf('syntax match arefWebKeyword "%s"', a:opener_scope.search_keyword)
+            highlight default link arefWebKeyword Special
+        finally
+            setl nomodifiable
+            wincmd p
+            let s:another_job_progresssive = v:false
+        endtry
     endfunction
 
     "FIXME: Branch into Job.vim

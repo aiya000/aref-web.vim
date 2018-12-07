@@ -1,0 +1,180 @@
+*aref_web.txt*	Async web dictionaries
+
+Author : aiya000
+License : MIT license  {{{
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}}
+
+==============================================================================
+CONTENTS					*aref_web-contents*
+
+INTRODUCTION			|aref_web-introduction|
+USAGE				|aref_web-usage|
+INTERFACE			|aref_web-interface|
+  VARIABLES			  |aref_web-variables|
+  COMMANDS			  |aref_web-commands|
+  KEY-MAPPINGS			  |aref_web-key-mappings|
+  FUNCTIONS			  |aref_web-functions|
+
+
+==============================================================================
+INTRODUCTION					*aref_web-introduction*
+
+*aref-web.vim* allows to open web dictionaries async (e.g. weblio (en-ja),
+		stackage (Haskell), shellcheck (GitHub wiki))
+
+This respects ref.vim (https://github.com/thinca/vim-ref/)
+
+
+==============================================================================
+USAGE						*aref_web-usage*
+
+>
+	let g:aref_web_source = {
+	  \ 'weblio' : {
+	    \ 'url' : 'http://ejje.weblio.jp/content/%s',
+	  \ },
+	  \ 'stackage' : {
+	    \ 'url' : 'https://www.stackage.org/lts-12.12/hoogle?q=%s',
+	  \ },
+	\ }
+
+	" Open http://ejje.weblio.jp/content/implement at the new buffer
+	:Aref weblio implement
+
+	" Open https://www.stackage.org/lts-12.12/hoogle?q=Int+-%3E+Int%0D&page=1
+	" at the new buffer
+	:Aref stackage Int -> Int
+<
+
+==============================================================================
+INTERFACE					*aref_web-interface*
+
+------------------------------------------------------------------------------
+VARIABLES					*aref_web-variables*
+
+g:aref_web_source				*g:aref_web_source*
+	default: {}
+
+	Please see |aref_web-usage|
+
+
+g:aref_web_dump_cmd				*g:aref_web_dump_cmd*
+	default: below (finds it in your $PATH)
+		- w3m ('w3m -dump %s')
+		- elinks ('elinks -dump -no-numbering -no-references %s')
+		- links ('links -dump %s')
+>
+	let g:aref_web_dump_cmd = 'w3m -dump %s'
+<
+	Draws fetched web pages for the vim's buffer, like:
+>
+	$ curl http://ejje.weblio.jp/content/foo_word -o tempname.html
+	$ w3m -dump tempname.html  # into the vim's buffer
+<
+
+				*g:aref_web_enable_default_keymappings*
+g:aref_web_enable_default_keymappings
+	default: v:true
+
+	Defines |aref_web-default-key-mappings|at the opened aref-web buffer
+	if this is not false.
+
+
+g:aref_web_buffer_opening			*g:aref_web_buffer_opening*
+	default: "new"
+
+	The way how to open the aref_web buffer.
+	This can be like "split", "vsplit", or "tabnew".
+
+------------------------------------------------------------------------------
+COMMANDS					*aref_web-commands*
+
+:Aref {source} {argments}			*:Aref*
+	Open new aref-web buffer.
+	{source} can be an element of `g:aref_web_source` keys.
+
+	Please see |aref_web-usage|.
+
+:ArefOpenBrowser 				*:ArefOpenBrowser*
+	Open the current page by |open-browser.vim|.
+
+	This works on aref-web buffer, and if you loaded |open-browser.vim|.
+
+
+------------------------------------------------------------------------------
+KEY-MAPPINGS					*aref_web-key-mappings*
+
+				*<Plug>(aref_web_open_browser_current_url)*
+<Plug>(aref_web_open_browser_current_url)
+	mode: Normal
+
+	A keymap for|:ArefOpenBrowser|.
+
+
+<Plug>(aref_web_show_next_page)		*<Plug>(aref_web_show_next_page)*
+	mode: Normal
+
+	Go to the next page at the current buffer.
+
+	e.g. if you are at
+	`https://www.stackage.org/lts-6.6/hoogle?q=Int+->+Int&page=1`,
+	this goes to
+	`https://www.stackage.org/lts-6.6/hoogle?q=Int+->+Int&page=2`
+	(the last number incremented.)
+
+
+<Plug>(aref_web_show_prev_page)		*<Plug>(aref_web_show_prev_page)*
+	mode: Normal
+
+	Simular to |<Plug>(aref_web_show_next_page)|, but this decrements.
+
+
+						*aref_web-default-key-mappings*
+
+mode: Normal (filetype=aref_web)
+
+{lhs}		{rhs}
+--------	------------------------
+<C-a>		<Plug>(aref_web_show_next_page)
+<C-x>		<Plug>(aref_web_show_prev_page)
+O		<Plug>(aref_web_open_browser_current_url)
+
+
+------------------------------------------------------------------------------
+FUNCTIONS						*aref_web-functions*
+
+aref_web#open_webpage({...})			*aref_web#open_webpage()*
+	A function for|:Aref|.
+
+
+aref_web#show_next_page()			*aref_web#show_next_page()*
+	A function for |<Plug>(aref_web_show_next_page)|.
+
+
+aref_web#show_prev_page()			*aref_web#show_prev_page()*
+	A function for |<Plug>(aref_web_show_prev_page)|.
+
+
+aref_web#open_browser()				*aref_web#open_browser()*
+	A function for |:ArefOpenBrowser|.
+
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:

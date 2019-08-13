@@ -1,3 +1,7 @@
+**Deprecated!**
+
+Please use [vim-webpage](https://github.com/aiya000/vim-webpage) instead.
+
 # aref-web.vim
 
 [![Build Status](https://travis-ci.org/aiya000/aref-web.vim.svg?branch=master)](https://travis-ci.org/aiya000/aref-web.vim)
